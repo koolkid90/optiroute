@@ -23,21 +23,50 @@
             padding-bottom: 40px;
         }
         
-        /* Убираем белые квадраты при нажатии */
+        /* Убираем белые квадраты */
         .point-marker, .point-marker div, .leaflet-marker-icon, .leaflet-container,
         button, .btn, .mode-btn, .lang-btn, .point-item {
             -webkit-tap-highlight-color: transparent !important;
             outline: none !important;
         }
         
-        /* Контейнеры и отступы */
+        /* Переключатель языка */
+        .lang-switcher {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 2000;
+            background: rgba(15, 18, 25, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 4px;
+            border: 1px solid #2a2f3f;
+            display: flex;
+            gap: 4px;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            color: #8892b0;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #ffaa44;
+            color: #0a0f1e;
+        }
+        
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 0 16px;
         }
         
-        /* Шапка */
         .header {
             text-align: center;
             padding: 24px 16px 16px;
@@ -55,7 +84,6 @@
             color: #8892b0;
         }
         
-        /* Карточки преимуществ */
         .features {
             display: flex;
             flex-wrap: wrap;
@@ -75,7 +103,6 @@
         .feature-icon { font-size: 1.5rem; margin-bottom: 6px; }
         .feature-title { font-weight: 600; color: #ffaa44; font-size: 0.75rem; }
         
-        /* Секция карты */
         .map-section {
             margin-bottom: 24px;
         }
@@ -101,7 +128,6 @@
             height: 100%;
         }
         
-        /* Панель управления под картой (последовательная) */
         .control-panel {
             background: #1a1f2e;
             border-radius: 20px;
@@ -110,7 +136,6 @@
             border: 1px solid #2a2f3f;
         }
         
-        /* Статистика */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -134,7 +159,6 @@
             margin-top: 4px;
         }
         
-        /* Поиск адреса */
         .address-search {
             margin-bottom: 16px;
         }
@@ -167,7 +191,6 @@
             font-size: 16px;
         }
         
-        /* Режимы */
         .modes-section {
             margin-bottom: 16px;
         }
@@ -201,7 +224,6 @@
             color: #0a0f1e;
         }
         
-        /* Кнопки действий */
         .action-buttons {
             display: flex;
             gap: 12px;
@@ -231,7 +253,6 @@
             border-color: #8b3a3a;
         }
         
-        /* Список точек */
         .points-list {
             background: #0f1219;
             border-radius: 16px;
@@ -263,7 +284,6 @@
             margin-right: 10px;
         }
         
-        /* Панель с маршрутом */
         .route-panel {
             background: #1a1f2e;
             border-radius: 20px;
@@ -344,7 +364,6 @@
             font-size: 13px;
         }
         
-        /* Информационные карточки */
         .info-section {
             margin-top: 32px;
         }
@@ -419,6 +438,7 @@
             .route-address { font-size: 11px; }
             .btn { font-size: 11px; padding: 8px; }
             .container { padding: 0 12px; }
+            .lang-btn { padding: 4px 10px; font-size: 10px; }
         }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -426,129 +446,242 @@
 </head>
 <body>
 
+<!-- Переключатель языка -->
+<div class="lang-switcher">
+    <button class="lang-btn active" data-lang="ru">RU</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+</div>
+
 <div class="container">
-    <!-- Шапка -->
     <div class="header">
         <h1>OptiRoute</h1>
-        <div class="tagline">Бесплатная оптимизация маршрутов</div>
+        <div class="tagline" data-i18n="tagline">Бесплатная оптимизация маршрутов</div>
     </div>
     
-    <!-- Преимущества -->
     <div class="features">
-        <div class="feature-card"><div class="feature-icon">🚀</div><div class="feature-title">Бесплатно</div></div>
-        <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Точность до 95%</div></div>
-        <div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title">Поиск по адресу</div></div>
-        <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Мгновенно</div></div>
+        <div class="feature-card"><div class="feature-icon">🚀</div><div class="feature-title" data-i18n="free">Бесплатно</div></div>
+        <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title" data-i18n="accuracy">Точность до 95%</div></div>
+        <div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title" data-i18n="address">Поиск по адресу</div></div>
+        <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title" data-i18n="instant">Мгновенно</div></div>
     </div>
     
-    <!-- Карта -->
     <div class="map-section">
-        <div class="section-title">📌 Выберите точки</div>
+        <div class="section-title" data-i18n="select_points">📌 Выберите точки</div>
         <div class="map-container">
             <div id="map"></div>
         </div>
     </div>
     
-    <!-- Панель управления (последовательная) -->
     <div class="control-panel">
         <div class="stats-grid">
-            <div class="stat-card"><div class="value" id="totalPoints">0</div><div class="label">Точек</div></div>
-            <div class="stat-card"><div class="value" id="totalDist">—</div><div class="label">Длина (км)</div></div>
-            <div class="stat-card"><div class="value" id="accuracyVal">—</div><div class="label">Точность</div></div>
-            <div class="stat-card"><div class="value" id="totalTime">—</div><div class="label">Время (мс)</div></div>
+            <div class="stat-card"><div class="value" id="totalPoints">0</div><div class="label" data-i18n="points">Точек</div></div>
+            <div class="stat-card"><div class="value" id="totalDist">—</div><div class="label" data-i18n="distance">Длина (км)</div></div>
+            <div class="stat-card"><div class="value" id="accuracyVal">—</div><div class="label" data-i18n="acc_label">Точность</div></div>
+            <div class="stat-card"><div class="value" id="totalTime">—</div><div class="label" data-i18n="time">Время (мс)</div></div>
         </div>
         
         <div class="address-search">
-            <label>🔍 Добавить по адресу</label>
+            <label data-i18n="add_address">🔍 Добавить по адресу</label>
             <div class="address-row">
-                <input type="text" id="addressInput" placeholder="Например: Москва, Красная площадь">
+                <input type="text" id="addressInput" placeholder="Москва, Красная площадь" data-i18n-placeholder="address_placeholder">
                 <button id="geocodeBtn">📍</button>
             </div>
         </div>
         
         <div class="modes-section">
-            <div class="modes-title">🌍 Режим расстояния</div>
+            <div class="modes-title" data-i18n="distance_mode">🌍 Режим расстояния</div>
             <div class="mode-buttons">
-                <button id="modeEuclid" class="mode-btn active">Евклидово</button>
-                <button id="modeManhattan" class="mode-btn">Манхэттен</button>
+                <button id="modeEuclid" class="mode-btn active" data-i18n="euclid">Евклидово</button>
+                <button id="modeManhattan" class="mode-btn" data-i18n="manhattan">Манхэттен</button>
             </div>
         </div>
         
         <div class="modes-section">
-            <div class="modes-title">🎯 Режим оптимизации</div>
+            <div class="modes-title" data-i18n="optimization_mode">🎯 Режим оптимизации</div>
             <div class="mode-buttons">
-                <button id="modeFast" class="mode-btn active">⚡ FAST (быстрый)</button>
-                <button id="modeAccurate" class="mode-btn">🎯 Точный (качественнее)</button>
+                <button id="modeFast" class="mode-btn active" data-i18n="fast">⚡ FAST (быстрый)</button>
+                <button id="modeAccurate" class="mode-btn" data-i18n="accurate">🎯 Точный (качественнее)</button>
             </div>
         </div>
         
         <div class="action-buttons">
-            <button id="runBtn" class="btn btn-primary">🚀 Оптимизировать маршрут</button>
-            <button id="clearBtn" class="btn btn-danger">🗑️ Очистить все</button>
+            <button id="runBtn" class="btn btn-primary" data-i18n="optimize">🚀 Оптимизировать маршрут</button>
+            <button id="clearBtn" class="btn btn-danger" data-i18n="clear">🗑️ Очистить все</button>
         </div>
         
-        <div class="modes-title" style="margin-top: 4px;">📋 Список точек (нажмите ✖ для удаления)</div>
-        <div class="points-list" id="pointsList"><div style="color:#5a6380;text-align:center;">Нет точек. Нажмите на карту</div></div>
+        <div class="modes-title" style="margin-top: 4px;" data-i18n="points_list">📋 Список точек (нажмите ✖ для удаления)</div>
+        <div class="points-list" id="pointsList"><div style="color:#5a6380;text-align:center;" data-i18n="no_points">Нет точек. Нажмите на карту</div></div>
         
         <div class="info-line" style="display: flex; justify-content: space-between; font-size: 10px; color: #5a6380; margin-top: 8px;">
-            <span>📐 Нижняя граница: <span id="lowerBound">—</span> км</span>
-            <span>📈 <span id="status">Готов</span></span>
+            <span><span data-i18n="lower_bound">📐 Нижняя граница:</span> <span id="lowerBound">—</span> км</span>
+            <span>📈 <span id="status" data-i18n="ready">Готов</span></span>
         </div>
     </div>
     
-    <!-- Панель с маршрутом (появляется после оптимизации) -->
     <div class="route-panel" id="routePanel" style="display: none;">
         <div class="route-header">
-            <h3>📋 Оптимальный маршрут</h3>
+            <h3 data-i18n="optimal_route">📋 Оптимальный маршрут</h3>
             <div class="route-buttons">
-                <button id="printRouteBtn" class="small-btn">🖨️ Печать</button>
-                <button id="saveRouteBtn" class="small-btn">💾 Сохранить (TXT)</button>
+                <button id="printRouteBtn" class="small-btn" data-i18n="print">🖨️ Печать</button>
+                <button id="saveRouteBtn" class="small-btn" data-i18n="save">💾 Сохранить (TXT)</button>
             </div>
         </div>
         <div class="route-content" id="routeContent"></div>
     </div>
     
-    <!-- Информационная секция -->
     <div class="info-section">
         <div class="info-card">
-            <h3>🔧 Как это работает</h3>
-            <p>OptiRoute решает задачу коммивояжёра (TSP) — находит кратчайший маршрут, проходящий через все выбранные точки. Алгоритм использует жадный подход с мультистартом и опциональной 2-opt оптимизацией.</p>
+            <h3 data-i18n="how_title">🔧 Как это работает</h3>
+            <p data-i18n="how_desc">OptiRoute решает задачу коммивояжёра (TSP) — находит кратчайший маршрут, проходящий через все выбранные точки. Алгоритм использует жадный подход с мультистартом и опциональной 2-opt оптимизацией.</p>
         </div>
         <div class="info-card">
-            <h3>💡 Для кого</h3>
+            <h3 data-i18n="for_who_title">💡 Для кого</h3>
             <ul>
-                <li>🚚 Курьеры и службы доставки</li>
-                <li>🏢 Логистические компании</li>
-                <li>✈️ Путешественники и туристы</li>
-                <li>📚 Студенты и преподаватели</li>
+                <li data-i18n="for_who_1">🚚 Курьеры и службы доставки</li>
+                <li data-i18n="for_who_2">🏢 Логистические компании</li>
+                <li data-i18n="for_who_3">✈️ Путешественники и туристы</li>
+                <li data-i18n="for_who_4">📚 Студенты и преподаватели</li>
             </ul>
         </div>
         <div class="info-card">
-            <h3>⚡ Преимущества</h3>
+            <h3 data-i18n="advantages_title">⚡ Преимущества</h3>
             <ul>
-                <li>✅ Абсолютно бесплатно</li>
-                <li>✅ Без регистрации</li>
-                <li>✅ Поиск по адресу</li>
-                <li>✅ 2 режима расстояния</li>
+                <li data-i18n="adv_1">✅ Абсолютно бесплатно</li>
+                <li data-i18n="adv_2">✅ Без регистрации</li>
+                <li data-i18n="adv_3">✅ Поиск по адресу</li>
+                <li data-i18n="adv_4">✅ 2 режима расстояния</li>
             </ul>
         </div>
         <div class="info-card">
-            <h3>❓ Частые вопросы</h3>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">▶ Сколько точек можно добавить?</div><div class="faq-answer">До 100 точек. Для максимальной производительности рекомендуется до 50 точек.</div></div>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">▶ Какой режим оптимизации выбрать?</div><div class="faq-answer">FAST — для быстрых расчётов, Точный — для максимального качества маршрута (рекомендуется для 10+ точек).</div></div>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">▶ Как удалить точку?</div><div class="faq-answer">Нажмите на точку в списке или используйте кнопку "Очистить все".</div></div>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)">▶ Насколько точные расчёты?</div><div class="faq-answer">Точность показывает отношение нижней границы (MST) к найденному решению. 85%+ — отличный результат.</div></div>
+            <h3 data-i18n="faq_title">❓ Частые вопросы</h3>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq1_q">▶ Сколько точек можно добавить?</div><div class="faq-answer" data-i18n="faq1_a">До 100 точек. Для максимальной производительности рекомендуется до 50 точек.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq2_q">▶ Какой режим оптимизации выбрать?</div><div class="faq-answer" data-i18n="faq2_a">FAST — для быстрых расчётов, Точный — для максимального качества маршрута (рекомендуется для 10+ точек).</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq3_q">▶ Как удалить точку?</div><div class="faq-answer" data-i18n="faq3_a">Нажмите на точку в списке или используйте кнопку "Очистить все".</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq4_q">▶ Насколько точные расчёты?</div><div class="faq-answer" data-i18n="faq4_a">Точность показывает отношение нижней границы (MST) к найденному решению. 85%+ — отличный результат.</div></div>
         </div>
     </div>
     
     <footer>
-        <p>© 2025 OptiRoute | Бесплатный TSP калькулятор | Данные карт © OpenStreetMap</p>
+        <p>© 2025 OptiRoute | <span data-i18n="footer">Бесплатный TSP калькулятор</span> | Данные карт © OpenStreetMap</p>
     </footer>
 </div>
 
 <div class="toast" id="toast">✅</div>
 
 <script>
+    // ========== ПЕРЕВОДЫ ==========
+    const translations = {
+        ru: {
+            tagline: "Бесплатная оптимизация маршрутов",
+            free: "Бесплатно", accuracy: "Точность до 95%", address: "Поиск по адресу", instant: "Мгновенно",
+            select_points: "📌 Выберите точки",
+            points: "Точек", distance: "Длина (км)", acc_label: "Точность", time: "Время (мс)",
+            add_address: "🔍 Добавить по адресу",
+            address_placeholder: "Москва, Красная площадь",
+            distance_mode: "🌍 Режим расстояния",
+            euclid: "Евклидово", manhattan: "Манхэттен",
+            optimization_mode: "🎯 Режим оптимизации",
+            fast: "⚡ FAST (быстрый)", accurate: "🎯 Точный (качественнее)",
+            optimize: "🚀 Оптимизировать маршрут", clear: "🗑️ Очистить все",
+            points_list: "📋 Список точек (нажмите ✖ для удаления)",
+            no_points: "Нет точек. Нажмите на карту",
+            lower_bound: "📐 Нижняя граница:", ready: "Готов",
+            optimal_route: "📋 Оптимальный маршрут",
+            print: "🖨️ Печать", save: "💾 Сохранить (TXT)",
+            how_title: "🔧 Как это работает",
+            how_desc: "OptiRoute решает задачу коммивояжёра (TSP) — находит кратчайший маршрут, проходящий через все выбранные точки. Алгоритм использует жадный подход с мультистартом и опциональной 2-opt оптимизацией.",
+            for_who_title: "💡 Для кого",
+            for_who_1: "🚚 Курьеры и службы доставки",
+            for_who_2: "🏢 Логистические компании",
+            for_who_3: "✈️ Путешественники и туристы",
+            for_who_4: "📚 Студенты и преподаватели",
+            advantages_title: "⚡ Преимущества",
+            adv_1: "✅ Абсолютно бесплатно",
+            adv_2: "✅ Без регистрации",
+            adv_3: "✅ Поиск по адресу",
+            adv_4: "✅ 2 режима расстояния",
+            faq_title: "❓ Частые вопросы",
+            faq1_q: "▶ Сколько точек можно добавить?",
+            faq1_a: "До 100 точек. Для максимальной производительности рекомендуется до 50 точек.",
+            faq2_q: "▶ Какой режим оптимизации выбрать?",
+            faq2_a: "FAST — для быстрых расчётов, Точный — для максимального качества маршрута (рекомендуется для 10+ точек).",
+            faq3_q: "▶ Как удалить точку?",
+            faq3_a: "Нажмите на точку в списке или используйте кнопку \"Очистить все\".",
+            faq4_q: "▶ Насколько точные расчёты?",
+            faq4_a: "Точность показывает отношение нижней границы (MST) к найденному решению. 85%+ — отличный результат.",
+            footer: "Бесплатный TSP калькулятор"
+        },
+        en: {
+            tagline: "Free route optimization",
+            free: "Free", accuracy: "95% Accuracy", address: "Address Search", instant: "Instant",
+            select_points: "📌 Select points",
+            points: "Points", distance: "Distance (km)", acc_label: "Accuracy", time: "Time (ms)",
+            add_address: "🔍 Add by address",
+            address_placeholder: "Moscow, Red Square",
+            distance_mode: "🌍 Distance mode",
+            euclid: "Euclidean", manhattan: "Manhattan",
+            optimization_mode: "🎯 Optimization mode",
+            fast: "⚡ FAST", accurate: "🎯 Accurate",
+            optimize: "🚀 Optimize route", clear: "🗑️ Clear all",
+            points_list: "📋 Points list (click ✖ to delete)",
+            no_points: "No points. Click on map",
+            lower_bound: "📐 Lower bound:", ready: "Ready",
+            optimal_route: "📋 Optimal route",
+            print: "🖨️ Print", save: "💾 Save (TXT)",
+            how_title: "🔧 How it works",
+            how_desc: "OptiRoute solves the Traveling Salesman Problem (TSP) — finds the shortest route through all selected points. Algorithm uses multi-start greedy approach with optional 2-opt optimization.",
+            for_who_title: "💡 For whom",
+            for_who_1: "🚚 Couriers and delivery services",
+            for_who_2: "🏢 Logistics companies",
+            for_who_3: "✈️ Travelers and tourists",
+            for_who_4: "📚 Students and teachers",
+            advantages_title: "⚡ Advantages",
+            adv_1: "✅ Completely free",
+            adv_2: "✅ No registration",
+            adv_3: "✅ Address search",
+            adv_4: "✅ 2 distance modes",
+            faq_title: "❓ FAQ",
+            faq1_q: "▶ How many points can I add?",
+            faq1_a: "Up to 100 points. For best performance, 50 points recommended.",
+            faq2_q: "▶ Which optimization mode to choose?",
+            faq2_a: "FAST — for quick calculations, Accurate — for maximum route quality.",
+            faq3_q: "▶ How to delete a point?",
+            faq3_a: "Click on the point in the list or use 'Clear all' button.",
+            faq4_q: "▶ How accurate are calculations?",
+            faq4_a: "Accuracy shows the ratio of lower bound (MST) to found solution. 85%+ is excellent.",
+            footer: "Free TSP Calculator"
+        }
+    };
+    
+    let currentLang = 'ru';
+    
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (translations[lang][key]) {
+                if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
+                    el.placeholder = translations[lang][key];
+                } else {
+                    el.textContent = translations[lang][key];
+                }
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.dataset.i18nPlaceholder;
+            if (translations[lang][key]) {
+                el.placeholder = translations[lang][key];
+            }
+        });
+    }
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    });
+    
     // ========== TSP АЛГОРИТМ ==========
     let distanceMode = 'euclidean';
     let accuracyMode = 'fast';
@@ -738,8 +871,8 @@
     // Геокодинг
     async function geocodeAddress() {
         const address = document.getElementById('addressInput').value.trim();
-        if (!address) { showToast('❌ Введите адрес'); return; }
-        showToast('🔍 Поиск...');
+        if (!address) { showToast('❌ ' + (currentLang === 'ru' ? 'Введите адрес' : 'Enter address')); return; }
+        showToast('🔍 ' + (currentLang === 'ru' ? 'Поиск...' : 'Searching...'));
         const sources = [
             { url: `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1` },
             { url: `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1` }
@@ -762,12 +895,12 @@
                 if (lat && lon) {
                     addPoint(lat, lon, displayName || address);
                     document.getElementById('addressInput').value = '';
-                    showToast('✅ Добавлено');
+                    showToast('✅ ' + (currentLang === 'ru' ? 'Добавлено' : 'Added'));
                     return;
                 }
             } catch(e) { continue; }
         }
-        showToast('❌ Адрес не найден');
+        showToast('❌ ' + (currentLang === 'ru' ? 'Адрес не найден' : 'Address not found'));
     }
     
     let map, routeLayer, pointLayer;
@@ -782,7 +915,7 @@
         }).addTo(map);
         routeLayer = L.layerGroup().addTo(map);
         pointLayer = L.layerGroup().addTo(map);
-        map.on('click', (e) => { addPoint(e.latlng.lat, e.latlng.lng); showToast('📍 Точка добавлена'); });
+        map.on('click', (e) => { addPoint(e.latlng.lat, e.latlng.lng); showToast('📍 ' + (currentLang === 'ru' ? 'Точка добавлена' : 'Point added')); });
     }
     
     function addPoint(lat, lng, address = null) {
@@ -822,7 +955,7 @@
     function updatePointsList() {
         const listDiv = document.getElementById('pointsList');
         if (points.length === 0) { 
-            listDiv.innerHTML = '<div style="color:#5a6380;text-align:center;">Нет точек. Нажмите на карту</div>'; 
+            listDiv.innerHTML = '<div style="color:#5a6380;text-align:center;">' + (currentLang === 'ru' ? 'Нет точек. Нажмите на карту' : 'No points. Click on map') + '</div>'; 
             return; 
         }
         listDiv.innerHTML = points.map((p, idx) => `
@@ -868,7 +1001,7 @@
             html += `
                 <div class="route-item" style="opacity:0.6;">
                     <div class="route-num">↺</div>
-                    <div class="route-address">Возврат в начальную точку</div>
+                    <div class="route-address">${currentLang === 'ru' ? 'Возврат в начальную точку' : 'Return to start'}</div>
                     <span class="route-distance">→ ${lastToFirst.toFixed(2)} км</span>
                 </div>
             `;
@@ -876,7 +1009,7 @@
         
         html += `
             <div class="total-info">
-                📏 Общая длина маршрута: ${totalDistance.toFixed(2)} км
+                📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${totalDistance.toFixed(2)} км
             </div>
         `;
         
@@ -891,8 +1024,8 @@
     }
     
     function optimizeAndDrawRoute() {
-        if (points.length < 2) { showToast('❌ Добавьте хотя бы 2 точки'); return; }
-        document.getElementById('status').innerHTML = '🔄 Оптимизация...';
+        if (points.length < 2) { showToast('❌ ' + (currentLang === 'ru' ? 'Добавьте хотя бы 2 точки' : 'Add at least 2 points')); return; }
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? '🔄 Оптимизация...' : '🔄 Optimizing...';
         const start = performance.now();
         const result = solveTSP(points);
         const end = performance.now();
@@ -903,7 +1036,7 @@
         document.getElementById('lowerBound').innerHTML = lowerBound.toFixed(2);
         document.getElementById('totalTime').innerHTML = (end - start).toFixed(2);
         document.getElementById('accuracyVal').innerHTML = `${accuracy.toFixed(2)}%`;
-        document.getElementById('status').innerHTML = '✅ Готово';
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? '✅ Готово' : '✅ Ready';
         
         drawRoute(result.route);
         updatePointsVisual();
@@ -916,7 +1049,7 @@
     
     function printRoute() {
         if (currentRoutePoints.length === 0) {
-            showToast('❌ Сначала постройте маршрут');
+            showToast('❌ ' + (currentLang === 'ru' ? 'Сначала постройте маршрут' : 'Build a route first'));
             return;
         }
         
@@ -933,24 +1066,23 @@
             <!DOCTYPE html>
             <html>
             <head>
-                <title>OptiRoute - Маршрут</title>
+                <title>OptiRoute - ${currentLang === 'ru' ? 'Маршрут' : 'Route'}</title>
                 <meta charset="UTF-8">
                 <style>
                     body { font-family: 'Courier New', monospace; margin: 40px; background: white; color: black; line-height: 1.5; }
                     h1 { color: #ff6600; }
-                    .route-item { margin: 8px 0; }
                     .total { margin-top: 20px; padding-top: 10px; border-top: 2px solid #ff6600; font-weight: bold; }
                     .date { color: #666; font-size: 12px; margin-bottom: 20px; }
                 </style>
             </head>
             <body>
-                <h1>🗺️ OptiRoute - Оптимальный маршрут</h1>
-                <div class="date">Дата: ${new Date().toLocaleString()}</div>
-                <div>Режим расстояния: ${distanceMode === 'euclidean' ? 'Евклидово' : 'Манхэттенское'}</div>
-                <div>Точность решения: ${accuracy}</div>
+                <h1>🗺️ OptiRoute - ${currentLang === 'ru' ? 'Оптимальный маршрут' : 'Optimal route'}</h1>
+                <div class="date">${currentLang === 'ru' ? 'Дата' : 'Date'}: ${new Date().toLocaleString()}</div>
+                <div>${currentLang === 'ru' ? 'Режим расстояния' : 'Distance mode'}: ${distanceMode === 'euclidean' ? (currentLang === 'ru' ? 'Евклидово' : 'Euclidean') : (currentLang === 'ru' ? 'Манхэттенское' : 'Manhattan')}</div>
+                <div>${currentLang === 'ru' ? 'Точность решения' : 'Solution accuracy'}: ${accuracy}</div>
                 <div style="height: 20px;"></div>
                 <pre>${pointsList}</pre>
-                <div class="total">📏 Общая длина маршрута: ${totalDist} км</div>
+                <div class="total">📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${totalDist} км</div>
                 <div style="margin-top: 30px; font-size: 11px; color: #666;">Создано с помощью OptiRoute - бесплатного TSP калькулятора</div>
             </body>
             </html>
@@ -961,28 +1093,27 @@
     
     function saveRouteToTxt() {
         if (currentRoutePoints.length === 0) {
-            showToast('❌ Сначала постройте маршрут');
+            showToast('❌ ' + (currentLang === 'ru' ? 'Сначала постройте маршрут' : 'Build a route first'));
             return;
         }
         
         let content = '';
-        content += `OptiRoute - Оптимальный маршрут\n`;
-        content += `Дата: ${new Date().toLocaleString()}\n`;
-        content += `Режим: ${distanceMode === 'euclidean' ? 'Евклидово расстояние' : 'Манхэттенское расстояние'}\n`;
-        content += `Точность: ${document.getElementById('accuracyVal').innerHTML}\n`;
+        content += `OptiRoute - ${currentLang === 'ru' ? 'Оптимальный маршрут' : 'Optimal route'}\n`;
+        content += `${currentLang === 'ru' ? 'Дата' : 'Date'}: ${new Date().toLocaleString()}\n`;
+        content += `${currentLang === 'ru' ? 'Режим расстояния' : 'Distance mode'}: ${distanceMode === 'euclidean' ? (currentLang === 'ru' ? 'Евклидово' : 'Euclidean') : (currentLang === 'ru' ? 'Манхэттенское' : 'Manhattan')}\n`;
+        content += `${currentLang === 'ru' ? 'Точность' : 'Accuracy'}: ${document.getElementById('accuracyVal').innerHTML}\n`;
         content += `==================================================\n\n`;
-        content += `ПОРЯДОК ОБЪЕЗДА ТОЧЕК:\n\n`;
+        content += `${currentLang === 'ru' ? 'ПОРЯДОК ОБЪЕЗДА ТОЧЕК' : 'POINTS ORDER'}:\n\n`;
         
         currentRoutePoints.forEach((point, idx) => {
             content += `${idx + 1}. ${point.getDisplayName()}\n`;
         });
         
-        content += `\n`;
-        content += `==================================================\n`;
-        content += `📏 Общая длина маршрута: ${document.getElementById('totalDist').innerHTML} км\n`;
-        content += `📐 Нижняя граница (MST): ${document.getElementById('lowerBound').innerHTML} км\n`;
-        content += `⏱️ Время расчёта: ${document.getElementById('totalTime').innerHTML} мс\n`;
-        content += `\nСоздано с помощью OptiRoute - бесплатного TSP калькулятора\n`;
+        content += `\n==================================================\n`;
+        content += `📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${document.getElementById('totalDist').innerHTML} км\n`;
+        content += `📐 ${currentLang === 'ru' ? 'Нижняя граница (MST)' : 'Lower bound (MST)'}: ${document.getElementById('lowerBound').innerHTML} км\n`;
+        content += `⏱️ ${currentLang === 'ru' ? 'Время расчёта' : 'Calculation time'}: ${document.getElementById('totalTime').innerHTML} мс\n`;
+        content += `\n${currentLang === 'ru' ? 'Создано с помощью OptiRoute - бесплатного TSP калькулятора' : 'Created with OptiRoute - free TSP calculator'}\n`;
         
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
@@ -993,7 +1124,7 @@
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        showToast('💾 Маршрут сохранён');
+        showToast('💾 ' + (currentLang === 'ru' ? 'Маршрут сохранён' : 'Route saved'));
     }
     
     function clearAllPoints() {
@@ -1005,7 +1136,7 @@
         document.getElementById('accuracyVal').innerHTML = '—';
         document.getElementById('lowerBound').innerHTML = '—';
         document.getElementById('totalTime').innerHTML = '—';
-        document.getElementById('status').innerHTML = 'Готов';
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? 'Готов' : 'Ready';
         document.getElementById('routePanel').style.display = 'none';
     }
     
@@ -1034,18 +1165,15 @@
         document.getElementById('modeFast').classList.toggle('active', mode === 'fast');
         document.getElementById('modeAccurate').classList.toggle('active', mode === 'accurate');
         if (points.length > 1) optimizeAndDrawRoute();
-        else showToast(mode === 'fast' ? 'Режим FAST' : 'Режим Точный');
+        else showToast(mode === 'fast' ? (currentLang === 'ru' ? 'Режим FAST' : 'FAST mode') : (currentLang === 'ru' ? 'Режим Точный' : 'Accurate mode'));
     }
     
     function toggleFaq(el) {
         const answer = el.nextElementSibling;
         answer.classList.toggle('show');
         const prefix = answer.classList.contains('show') ? '▼ ' : '▶ ';
-        if (!el.innerHTML.startsWith('▼') && !el.innerHTML.startsWith('▶')) {
-            el.innerHTML = prefix + el.innerHTML.slice(2);
-        } else {
-            el.innerHTML = prefix + el.innerHTML.slice(2);
-        }
+        const text = el.textContent.slice(2);
+        el.textContent = prefix + text;
     }
     
     window.removePoint = removePoint;
@@ -1063,7 +1191,8 @@
     
     initMap();
     updateAll();
-    showToast('✅ OptiRoute готов! Нажмите на карту');
+    setLanguage('ru');
+    showToast('✅ OptiRoute готов!');
 </script>
 </body>
 </html>
