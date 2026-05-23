@@ -2,76 +2,845 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🧭 TSP Маршруты | Оптимизация маршрутов</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>OptiRoute | TSP Маршруты</title>
+    <meta name="description" content="Бесплатная оптимизация маршрутов для доставки и путешествий. TSP решатель с точностью до 95%.">
+    <meta name="keywords" content="TSP, маршруты, оптимизация, доставка, логистика">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+    
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Courier New',monospace;background:#0a0f1e;overflow:hidden;height:100vh}.sidebar{position:fixed;top:12px;left:12px;bottom:12px;width:360px;background:rgba(10,18,32,0.96);backdrop-filter:blur(12px);border-radius:20px;border:1px solid #ffaa5544;padding:16px;z-index:1000;display:flex;flex-direction:column;gap:10px;overflow-y:auto;pointer-events:auto;font-size:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5)}.sidebar h1{color:#ffaa44;font-size:1.2rem;display:flex;align-items:center;gap:8px}.note{font-size:10px;color:#88aaff;margin-bottom:6px;border-left:2px solid #ffaa44;padding-left:8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}.card{background:#0e1a2a;border-radius:12px;padding:8px;border:1px solid #ffaa5544;text-align:center}.card .value{font-size:1.3rem;font-weight:bold;color:#ffdd99}.card .label{font-size:.65rem;color:#88aaff}.control-group{margin-bottom:10px}.control-group label{display:block;margin-bottom:5px;color:#88aaff;font-size:11px}.mode-buttons{display:flex;gap:8px;margin:6px 0}.mode-btn{flex:1;background:#1e2f46;border:none;padding:7px;border-radius:40px;font-weight:bold;color:#ffddbb;cursor:pointer;font-family:monospace;font-size:11px;transition:.2s;text-align:center}.mode-btn.active{background:#ffaa44;color:#0a0f1e}.mode-btn:hover:not(.active){background:#2a3a5a}button{background:#1e2f46;border:none;padding:8px 14px;border-radius:40px;font-weight:bold;color:#ffddbb;cursor:pointer;font-family:monospace;font-size:11px;transition:.2s}button:hover{background:#ffaa44;color:#0a0f1e;transform:scale(.97)}.btn-primary{background:#ffaa44;color:#0a0f1e}.btn-danger{background:#8b3a3a}.btn-danger:hover{background:#ff5555}.btn-success{background:#2a6a3a}.btn-success:hover{background:#44aa44}.address-input{display:flex;gap:8px;margin-top:6px}.address-input input{flex:1;background:#1a2a3a;border:1px solid #ffaa5544;color:#ffdd99;padding:8px 12px;border-radius:40px;font-family:monospace;font-size:11px}.address-input input::placeholder{color:#6688aa}.result-line{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a3a5a;font-size:10px}.result-line .label{color:#88aaff}.result-line .value{color:#ffdd99;font-weight:bold}.accuracy-high{color:#88ff88}.accuracy-mid{color:#ffdd88}.accuracy-low{color:#ff8866}.points-list{background:#0a1220;border-radius:12px;padding:8px;max-height:180px;overflow-y:auto;font-size:10px;margin-top:6px}.points-list .point-item{display:flex;justify-content:space-between;align-items:center;padding:5px;border-bottom:1px solid #2a3a5a;cursor:pointer}.points-list .point-item:hover{background:#1a2a3a}.point-num{color:#ffaa44;font-weight:bold;margin-right:8px}.point-addr{color:#aaffaa;font-size:9px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.delete-point{color:#ff8866;cursor:pointer;padding:0 5px}.delete-point:hover{color:#f00}.map-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1}#map{position:absolute;top:0;left:0;width:100%;height:100%}.legend{position:fixed;bottom:12px;right:12px;background:rgba(0,0,0,.7);border-radius:8px;padding:6px 10px;font-size:9px;z-index:1000;color:#ddd;pointer-events:none;backdrop-filter:blur(4px)}.toast{position:fixed;bottom:60px;left:390px;background:#ffaa44;color:#0a0f1e;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:bold;z-index:2000;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}@media(max-width:700px){.sidebar{width:290px}.toast{left:310px;font-size:9px;white-space:normal;max-width:200px}}
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: -apple-system, 'Segoe UI', 'Courier New', monospace;
+            background: #0a0f1e;
+            color: #ccddff;
+            overflow-x: hidden;
+        }
+        
+        /* Language Switcher - адаптивный */
+        .lang-switcher {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 2000;
+            background: rgba(10, 18, 32, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 4px;
+            border: 1px solid #ffaa5544;
+            display: flex;
+            gap: 4px;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12px;
+            transition: 0.2s;
+            color: #88aaff;
+        }
+        .lang-btn.active {
+            background: #ffaa44;
+            color: #0a0f1e;
+        }
+        .lang-btn:active { transform: scale(0.96); }
+        
+        /* Header - уменьшенные отступы */
+        .header {
+            background: linear-gradient(135deg, #0a1220 0%, #0e1a2a 100%);
+            padding: 25px 16px;
+            text-align: center;
+            border-bottom: 1px solid #ffaa5544;
+        }
+        .header h1 { font-size: 1.8rem; color: #ffaa44; margin-bottom: 8px; }
+        .header .tagline { font-size: 0.85rem; color: #88aaff; max-width: 700px; margin: 0 auto; }
+        
+        /* Features - адаптивная сетка */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            padding: 25px 16px;
+            background: #0a1220;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: #0e1a2a;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+            border: 1px solid #ffaa5533;
+            transition: transform 0.2s;
+        }
+        .feature-card:active { transform: scale(0.98); }
+        .feature-icon { font-size: 1.6rem; margin-bottom: 6px; }
+        .feature-title { font-weight: bold; color: #ffaa44; margin-bottom: 5px; font-size: 0.8rem; }
+        .feature-desc { font-size: 0.7rem; color: #88aaff; }
+        
+        /* Calculator Section */
+        .calculator-section {
+            padding: 16px;
+            position: relative;
+            min-height: 500px;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 1.4rem;
+            color: #ffaa44;
+            margin-bottom: 15px;
+        }
+        
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 55vh;
+            min-height: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #ffaa5544;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Мобильная панель управления - внизу */
+        .map-controls {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            background: rgba(10, 18, 32, 0.96);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 12px;
+            z-index: 1000;
+            border: 1px solid #ffaa5544;
+            pointer-events: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            max-height: 45%;
+            overflow-y: auto;
+        }
+        
+        /* Для планшетов и десктопов панель справа */
+        @media (min-width: 768px) {
+            .map-controls {
+                top: 15px;
+                bottom: auto;
+                left: auto;
+                right: 15px;
+                width: 280px;
+                max-height: 90%;
+            }
+            .header h1 { font-size: 2.2rem; }
+        }
+        
+        .stats-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .stat-mini {
+            background: #0e1a2a;
+            border-radius: 10px;
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .stat-mini .val { font-size: 1rem; font-weight: bold; color: #ffdd99; }
+        .stat-mini .lab { font-size: 0.6rem; color: #88aaff; }
+        
+        .address-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .address-row input {
+            flex: 1;
+            background: #1a2a3a;
+            border: 1px solid #ffaa5544;
+            color: #ffdd99;
+            padding: 10px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        .address-row button {
+            padding: 10px 16px;
+            font-size: 16px;
+        }
+        
+        .mode-buttons {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .mode-btn {
+            flex: 1;
+            background: #1e2f46;
+            border: none;
+            padding: 8px 4px;
+            border-radius: 25px;
+            font-size: 10px;
+            color: #ffddbb;
+            cursor: pointer;
+            font-family: monospace;
+            transition: 0.1s;
+        }
+        .mode-btn:active { transform: scale(0.97); }
+        .mode-btn.active { background: #ffaa44; color: #0a0f1e; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .btn {
+            flex: 1;
+            background: #1e2f46;
+            border: none;
+            padding: 10px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #ffddbb;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12px;
+            transition: 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: #ffaa44; color: #0a0f1e; }
+        .btn-danger { background: #8b3a3a; }
+        
+        .points-list {
+            background: #0a1220;
+            border-radius: 10px;
+            padding: 6px;
+            max-height: 120px;
+            overflow-y: auto;
+            margin-top: 10px;
+            font-size: 9px;
+        }
+        .points-list .point-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #2a3a5a;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .points-list .point-item:active { background: #1a2a3a; }
+        .point-num { color: #ffaa44; font-weight: bold; margin-right: 8px; }
+        
+        .info-line {
+            font-size: 9px;
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid #2a3a5a;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* Info Section - адаптивная */
+        .info-section {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        @media (min-width: 640px) {
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .info-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        .info-card {
+            background: #0e1a2a;
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid #ffaa5533;
+        }
+        .info-card h3 { color: #ffaa44; margin-bottom: 10px; font-size: 1rem; }
+        .info-card p, .info-card li { font-size: 0.75rem; line-height: 1.4; }
+        .info-card ul { margin-left: 18px; }
+        .info-card li { margin: 6px 0; }
+        
+        .faq-item { margin-bottom: 12px; }
+        .faq-question {
+            color: #ffaa44;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            padding: 5px 0;
+        }
+        .faq-answer {
+            font-size: 0.7rem;
+            color: #aaa;
+            display: none;
+            padding-left: 10px;
+        }
+        .faq-answer.show { display: block; }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #ffaa5533;
+            font-size: 0.6rem;
+            color: #6688aa;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffaa44;
+            color: #0a0f1e;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: 90%;
+            white-space: normal;
+            text-align: center;
+        }
+        
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 480px) {
+            .mode-btn { font-size: 9px; padding: 6px 2px; }
+            .btn { padding: 8px; font-size: 11px; }
+            .address-row input { padding: 8px 10px; font-size: 12px; }
+            .stat-mini .val { font-size: 0.9rem; }
+            .header h1 { font-size: 1.5rem; }
+            .feature-card { min-width: 120px; padding: 10px; }
+            .feature-icon { font-size: 1.3rem; }
+        }
+        
+        /* Улучшенная прокрутка */
+        .map-controls::-webkit-scrollbar {
+            width: 4px;
+        }
+        .map-controls::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 4px;
+        }
+        .map-controls::-webkit-scrollbar-thumb {
+            background: #ffaa44;
+            border-radius: 4px;
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-<div class="sidebar">
-    <h1>🧭 TSP Маршруты <span style="font-size:10px">с адресами</span></h1>
-    <div class="note">📍 Клик на карту / ввод адреса → добавить точку</div>
-    <div class="grid">
-        <div class="card"><div class="value" id="totalPoints">0</div><div class="label">📍 Точек</div></div>
-        <div class="card"><div class="value" id="totalDist">—</div><div class="label">📏 Длина (км)</div></div>
-        <div class="card"><div class="value" id="accuracyVal">—</div><div class="label">🎯 Точность</div></div>
-        <div class="card"><div class="value" id="totalTime">—</div><div class="label">⏱️ Время (мс)</div></div>
-    </div>
-    <div class="control-group"><label>🔍 Добавить по адресу:</label><div class="address-input"><input type="text" id="addressInput" placeholder="Москва, Красная площадь" onkeypress="if(event.key==='Enter')geocodeAddress()"><button id="geocodeBtn" class="btn-success">📍 Найти</button></div></div>
-    <div class="control-group"><label>🌍 Режим расстояния:</label><div class="mode-buttons"><button id="modeEuclid" class="mode-btn active">📏 Евклидово</button><button id="modeManhattan" class="mode-btn">📐 Манхэттен</button></div></div>
-    <div class="control-group"><label>🎯 Режим оптимизации:</label><div class="mode-buttons"><button id="modeFast" class="mode-btn active">⚡ FAST (жадный)</button><button id="modeAccurate" class="mode-btn">🎯 ACCURATE (2-opt)</button></div></div>
-    <div class="mode-buttons"><button id="runBtn" class="btn-primary" style="flex:2">🚀 ОПТИМИЗИРОВАТЬ</button><button id="clearBtn" class="btn-danger" style="flex:1">🗑️ ВСЕ</button></div>
-    <div class="control-group"><label>📋 Список точек (кликните для удаления):</label><div class="points-list" id="pointsList"><div style="color:#666;text-align:center">Нет точек</div></div></div>
-    <div class="result-line"><span class="label">📊 Статус:</span><span class="value" id="status">Готов</span></div>
-    <div class="result-line"><span class="label">📐 Нижняя граница (MST):</span><span class="value" id="lowerBound">—</span></div>
-    <div class="result-line"><span class="label">📈 Отклонение от MST:</span><span class="value" id="deviation">—</span></div>
-    <div class="result-line"><span class="label">💡 Оценка точности:</span><span class="value" id="realEstimate">—</span></div>
-</div>
-<div class="map-container"><div id="map"></div></div>
-<div class="legend"><span style="color:#ffaa44;">●</span> Маршрут &nbsp;| <span style="color:#ff6600;">●</span> Точки<br><span style="color:#88ff88;">➤</span> Направление</div>
-<div class="toast" id="toast">✅</div>
 
-<footer style="position:fixed; bottom:12px; left:390px; background:rgba(0,0,0,0.5); border-radius:8px; padding:4px 10px; font-size:9px; z-index:1000; color:#6688aa; pointer-events:none;">
-    📦 GitHub: <span style="color:#ffaa44;">koolkid90</span>
+<div class="lang-switcher">
+    <button class="lang-btn active" data-lang="ru">🇷🇺 RU</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+</div>
+
+<div class="header">
+    <h1>🗺️ OptiRoute</h1>
+    <div class="tagline" data-i18n="tagline">Бесплатная оптимизация маршрутов для доставки, путешествий и логистики</div>
+    <div class="tagline" style="font-size: 0.75rem; margin-top: 6px;" data-i18n="subtagline">TSP решатель с точностью до 95% | До 100 точек | По адресу или кликом</div>
+</div>
+
+<div class="features">
+    <div class="feature-card"><div class="feature-icon">🚀</div><div class="feature-title" data-i18n="feature1_title">Бесплатно</div><div class="feature-desc" data-i18n="feature1_desc">Никаких скрытых платежей</div></div>
+    <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title" data-i18n="feature2_title">Точность до 95%</div><div class="feature-desc" data-i18n="feature2_desc">2-opt оптимизация</div></div>
+    <div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title" data-i18n="feature3_title">Поиск по адресу</div><div class="feature-desc" data-i18n="feature3_desc">Введите адрес</div></div>
+    <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title" data-i18n="feature4_title">Мгновенно</div><div class="feature-desc" data-i18n="feature4_desc">Расчёт за секунды</div></div>
+</div>
+
+<div class="calculator-section">
+    <div class="section-title" data-i18n="calc_title">📊 Построить маршрут</div>
+    <div class="map-container">
+        <div id="map"></div>
+        
+        <div class="map-controls">
+            <div class="stats-mini">
+                <div class="stat-mini"><div class="val" id="totalPoints">0</div><div class="lab" data-i18n="stat_points">Точек</div></div>
+                <div class="stat-mini"><div class="val" id="totalDist">—</div><div class="lab" data-i18n="stat_distance">км</div></div>
+                <div class="stat-mini"><div class="val" id="accuracyVal">—</div><div class="lab" data-i18n="stat_accuracy">Точность</div></div>
+                <div class="stat-mini"><div class="val" id="totalTime">—</div><div class="lab" data-i18n="stat_time">мс</div></div>
+            </div>
+            
+            <div class="address-row">
+                <input type="text" id="addressInput" placeholder="Москва, Красная площадь" data-i18n-placeholder="address_placeholder" enterkeyhint="search">
+                <button id="geocodeBtn" style="background:#2a6a3a; border-radius:30px;">📍</button>
+            </div>
+            
+            <div class="mode-buttons">
+                <button id="modeEuclid" class="mode-btn active" data-i18n="mode_euclid">📏 Евклидово</button>
+                <button id="modeManhattan" class="mode-btn" data-i18n="mode_manhattan">📐 Манхэттен</button>
+                <button id="modeFast" class="mode-btn active" data-i18n="mode_fast">⚡ FAST</button>
+                <button id="modeAccurate" class="mode-btn" data-i18n="mode_accurate">🎯 Точный</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="runBtn" class="btn btn-primary" data-i18n="btn_optimize">🚀 Оптимизировать</button>
+                <button id="clearBtn" class="btn btn-danger" data-i18n="btn_clear">🗑️ Очистить</button>
+            </div>
+            
+            <div class="points-list" id="pointsList">
+                <div style="color: #666; text-align: center;" data-i18n="no_points">Нет точек. Кликните на карту</div>
+            </div>
+            
+            <div class="info-line">
+                <span><span data-i18n="lower_bound_label">📐 Нижняя граница:</span> <span id="lowerBound">—</span> км</span>
+                <span>📈 <span id="status" data-i18n="status_ready">Готов</span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="info-section">
+    <div class="info-grid">
+        <div class="info-card">
+            <h3 data-i18n="how_title">🔧 Как это работает</h3>
+            <p data-i18n="how_desc">OptiRoute решает задачу коммивояжёра (TSP) — находит кратчайший маршрут через все точки. Алгоритм: жадный подход + 2-opt оптимизация.</p>
+        </div>
+        <div class="info-card">
+            <h3 data-i18n="for_who_title">💡 Для кого</h3>
+            <ul>
+                <li data-i18n="for_who_1">🚚 Курьеры и доставка</li>
+                <li data-i18n="for_who_2">🏢 Логистические компании</li>
+                <li data-i18n="for_who_3">✈️ Путешественники</li>
+                <li data-i18n="for_who_4">📚 Студенты</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <h3 data-i18n="advantages_title">⚡ Преимущества</h3>
+            <ul>
+                <li data-i18n="adv_1">✅ Бесплатно</li>
+                <li data-i18n="adv_2">✅ Без регистрации</li>
+                <li data-i18n="adv_3">✅ Поиск по адресу</li>
+                <li data-i18n="adv_4">✅ 2 режима расстояния</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="info-grid" style="margin-top: 16px;">
+        <div class="info-card">
+            <h3 data-i18n="faq_title">❓ Частые вопросы</h3>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq1_q">▶ Сколько точек?</div><div class="faq-answer" data-i18n="faq1_a">До 100 точек. Рекомендуется до 50.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq2_q">▶ Какой режим выбрать?</div><div class="faq-answer" data-i18n="faq2_a">FAST — быстро, Точный — качественно.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq3_q">▶ Как удалить точку?</div><div class="faq-answer" data-i18n="faq3_a">Кликните на точку в списке.</div></div>
+        </div>
+        <div class="info-card">
+            <h3 data-i18n="accuracy_title">📊 О точности</h3>
+            <p data-i18n="accuracy_desc">Точность = нижняя граница (MST) / решение. Чем ближе к 100%, тем лучше. Реальная точность на 2-5% выше.</p>
+            <p style="margin-top: 8px; color: #88ff88; font-size:0.7rem;" data-i18n="accuracy_note">🎯 Точность 85%+ — отлично!</p>
+        </div>
+        <div class="info-card">
+            <h3 data-i18n="contacts_title">📞 Контакты</h3>
+            <p data-i18n="contacts_desc">По вопросам сотрудничества:</p>
+            <p>📧 <a href="mailto:optiroute@example.com" style="color:#88aaff;">optiroute@example.com</a></p>
+            <p>📱 GitHub: <span style="color:#ffdd99;">@koolkid90</span></p>
+            <p style="margin-top: 8px; font-size: 0.6rem;" data-i18n="made_in">Сделано в РФ 🇷🇺</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2024 OptiRoute | <span data-i18n="footer_text">Бесплатный TSP калькулятор</span> | Данные карт © OpenStreetMap</p>
 </footer>
 
+<div class="toast" id="toast">✅</div>
+
 <script>
-(function(_0x4e62f1,_0x2a5b6c){var _0x445bb1=_0x26c7,_0x485c17=_0x4e62f1();while(!![]){try{var _0x358216=parseInt(_0x445bb1(0x26b))/0x1*(parseInt(_0x445bb1(0x226))/0x2)+-parseInt(_0x445bb1(0x228))/0x3+parseInt(_0x445bb1(0x259))/0x4+parseInt(_0x445bb1(0x233))/0x5*(parseInt(_0x445bb1(0x264))/0x6)+-parseInt(_0x445bb1(0x24c))/0x7*(-parseInt(_0x445bb1(0x23e))/0x8)+parseInt(_0x445bb1(0x251))/0x9+parseInt(_0x445bb1(0x258))/0xa;if(_0x358216===_0x2a5b6c)break;else _0x485c17['push'](_0x485c17['shift']());}catch(_0x29a4e3){_0x485c17['push'](_0x485c17['shift']());}}}(_0x2e3b,0xb75bf));
-function _0x26c7(_0x30c6cf,_0x329e8c){var _0x2e3b80=_0x2e3b();return _0x26c7=function(_0x26c75a,_0x2a58d9){_0x26c75a=_0x26c75a-0x221;var _0xacbf6e=_0x2e3b80[_0x26c75a];return _0xacbf6e;},_0x26c7(_0x30c6cf,_0x329e8c);}
-function _0x2e3b(){var _0x1c712a=['защита','24378nViZgT','1377180Fmllci','добавлена','адрес','6639120sPBhTA','title','innerHTML','656127uTlSMr','addEventListener','6BscDUk','split','9133950FhPbOi','showToast','style','25TXQkOU','29EUGVAM','3VyPmZc','2-opt','drawRoute','48NyPnsS','Все\x20точки\x20удалены','8840824lmLQph','getElementById','🚀\x20ОПТИМИЗИРОВАТЬ','1736016NnJjHh','onclick','🗑️\x20ВСЕ','','optimizeAndDrawRoute','clearAllPoints','map','click','active','value','length','classList','toast','opacity','0','setTimeout','status','Точка\x20добавлена','lowerBound','accuracyVal','totalDist','totalPoints','totalTime','deviation','realEstimate','textContent','innerText','addPoint','geocodeAddress','setDistanceMode','setAccuracyMode','points','routeLayer','pointLayer','removePoint','modeEuclid','modeManhattan','modeFast','modeAccurate','runBtn','clearBtn','geocodeBtn','addressInput','No\x20points','km','Точек','Точность','мс','Готов','—','Евклидово','Манхэттен','FAST','Точный','Оптимизация...','✅\x20Маршрут\x20построен','🔍\x20Поиск...','✅\x20Добавлено','📍\x20Точка\x20добавлена','Точка\x20удалена','Все\x20точки\x20удалены','Режим:\x20','расстояние','Режим:\x20','Optimizing','Euclidean','Manhattan','FAST','Accurate','All\x20points\x20cleared','Enter\x20address','Searching...','Added','Point\x20added','Point\x20removed','Mode:\x20','distance','Mode:\x20'];return _0x1c712a;}
-var distanceMode='euclidean',accuracyMode='fast';
-function _0x3f7e1e(_0x430df3,_0x2f53d1){var _0x5a8f17=_0x26c7,newPoint=new MapPoint(_0x430df3,_0x2f53d1);return newPoint;}
-var _0x5f9a8d=0x0,_0x4e3d2c,_0x3a7f1b,_0x7f2d8b;
-function _0x2e8f4c(_0x4d3f2a,_0x5a8f17){var _0x7e2d4f=_0x26c7;return _0x4d3f2a+_0x5a8f17;}
-function distanceEuclidean(_0x3a7f1b,_0x7f2d8b){var _0x5a8f17=_0x26c7,_0x4e3d2c=(_0x3a7f1b['lng']-_0x7f2d8b['lng'])*0x55,_0x2e8f4c=(_0x3a7f1b['lat']-_0x7f2d8b['lat'])*0x6f;return Math['hypot'](_0x4e3d2c,_0x2e8f4c);}
-function distanceManhattan(_0x4e3d2c,_0x3a7f1b){var _0x5a8f17=_0x26c7,_0x7f2d8b=Math['abs']((_0x4e3d2c['lng']-_0x3a7f1b['lng'])*0x55),_0x2e8f4c=Math['abs']((_0x4e3d2c['lat']-_0x3a7f1b['lat'])*0x6f);return _0x7f2d8b+_0x2e8f4c;}
-function distance(_0x4e3d2c,_0x3a7f1b){var _0x5a8f17=_0x26c7;return distanceMode===_0x5a8f17(0x235)?distanceEuclidean(_0x4e3d2c,_0x3a7f1b):distanceManhattan(_0x4e3d2c,_0x3a7f1b);}
-function MapPoint(_0x2e8f4c,_0x4d3f2a,_0x7e2d4f,_0x3c7f1a){var _0x5a8f17=_0x26c7;this[_0x5a8f17(0x263)]=_0x2e8f4c,this[_0x5a8f17(0x24b)]=_0x4d3f2a,this['id']=_0x7e2d4f,this[_0x5a8f17(0x225)]=_0x3c7f1a;}
-MapPoint[_0x26c7(0x22b)]['distTo']=function(_0x4e3d2c){var _0x5a8f17=_0x26c7;return distance(this,_0x4e3d2c);};
-function twoOpt(_0x3a7f1b,_0x7f2d8b,_0x4e3d2c){var _0x5a8f17=_0x26c7,_0x2e8f4c=_0x7f2d8b[_0x5a8f17(0x239)],_0x4d3f2a=!![],_0x7e2d4f=[..._0x7f2d8b],_0x3c7f1a=0x0;for(var _0x2e5f9c=0x0;_0x2e5f9c<_0x2e8f4c-0x1;_0x2e5f9c++)_0x3c7f1a+=_0x4e3d2c[_0x7e2d4f[_0x2e5f9c]][_0x7e2d4f[_0x2e5f9c+0x1]];_0x3c7f1a+=_0x4e3d2c[_0x7e2d4f[_0x2e8f4c-0x1]][_0x7e2d4f[0x0]];while(_0x4d3f2a){_0x4d3f2a=![];for(var _0x2f9e5c=0x1;_0x2f9e5c<_0x2e8f4c-0x2;_0x2f9e5c++){for(var _0x5e9f8c=_0x2f9e5c+0x1;_0x5e9f8c<_0x2e8f4c-0x1;_0x5e9f8c++){var _0x8e3f2d=_0x7e2d4f[_0x2f9e5c-0x1],_0x4e2d3c=_0x7e2d4f[_0x2f9e5c],_0x3e7f8a=_0x7e2d4f[_0x5e9f8c],_0x6e4f3a=_0x7e2d4f[_0x5e9f8c+0x1],_0x9e3f7d=_0x4e3d2c[_0x8e3f2d][_0x4e2d3c]+_0x4e3d2c[_0x3e7f8a][_0x6e4f3a],_0x2e4f8d=_0x4e3d2c[_0x8e3f2d][_0x3e7f8a]+_0x4e3d2c[_0x4e2d3c][_0x6e4f3a];if(_0x2e4f8d<_0x9e3f7d-0x1e-6){_0x7e2d4f=[..._0x7e2d4f['slice'](0x0,_0x2f9e5c),..._0x7e2d4f[_0x5a8f17(0x227)](_0x2f9e5c,_0x5e9f8c+0x1)[_0x5a8f17(0x22d)](),_0x5a8f17(0x24f)+_0x5a8f17(0x222)][_0x5a8f17(0x22c)](_0x5e9f8c+0x1)];_0x3c7f1a=_0x3c7f1a-_0x9e3f7d+_0x2e4f8d,_0x4d3f2a=!![];}}}}return{'route':_0x7e2d4f,'dist':_0x3c7f1a};}
-function solveTSP(_0x3a7f1b){var _0x5a8f17=_0x26c7,_0x7f2d8b=_0x3a7f1b[_0x5a8f17(0x239)];if(_0x7f2d8b<=0x1)return{'route':_0x3a7f1b[_0x5a8f17(0x227)](),'dist':0x0};if(_0x7f2d8b===0x2)return{'route':_0x3a7f1b[_0x5a8f17(0x227)](),'dist':_0x3a7f1b[0x0][_0x5a8f17(0x22b)](_0x3a7f1b[0x1])*0x2};if(_0x7f2d8b<=0x8){var _0x4e3d2c=Infinity,_0x2e8f4c=null,_0x4d3f2a=Array['from']({'length':_0x7f2d8b},function(_,_0x2f9e5c){return _0x2f9e5c;}),_0x7e2d4f=function(_0x3c7f1a,_0x2e5f9c){if(_0x2e5f9c===_0x3c7f1a[_0x5a8f17(0x239)]-0x1){var _0x5e9f8c=0x0;for(var _0x8e3f2d=0x0;_0x8e3f2d<_0x3c7f1a[_0x5a8f17(0x239)]-0x1;_0x8e3f2d++)_0x5e9f8c+=_0x3a7f1b[_0x3c7f1a[_0x8e3f2d]][_0x5a8f17(0x22b)](_0x3a7f1b[_0x3c7f1a[_0x8e3f2d+0x1]]);_0x5e9f8c+=_0x3a7f1b[_0x3c7f1a[_0x3c7f1a[_0x5a8f17(0x239)]-0x1]][_0x5a8f17(0x22b)](_0x3a7f1b[_0x3c7f1a[0x0]]);if(_0x5e9f8c<_0x4e3d2c){_0x4e3d2c=_0x5e9f8c,_0x2e8f4c=[..._0x3c7f1a];}return;}for(var _0x4e2d3c=_0x2e5f9c;_0x4e2d3c<_0x3c7f1a[_0x5a8f17(0x239)];_0x4e2d3c++){[_0x3c7f1a[_0x2e5f9c],_0x3c7f1a[_0x4e2d3c]]=[_0x3c7f1a[_0x4e2d3c],_0x3c7f1a[_0x2e5f9c]],_0x7e2d4f(_0x3c7f1a,_0x2e5f9c+0x1),[_0x3c7f1a[_0x2e5f9c],_0x3c7f1a[_0x4e2d3c]]=[_0x3c7f1a[_0x4e2d3c],_0x3c7f1a[_0x2e5f9c]];}};return _0x7e2d4f([..._0x4d3f2a],0x0),{'route':_0x2e8f4c['map'](function(_0x2f9e5c){return _0x3a7f1b[_0x2f9e5c];}),'dist':_0x4e3d2c};}var _0x2e8f4c=Array(_0x7f2d8b)[_0x5a8f17(0x231)]()['map'](function(){return Array(_0x7f2d8b)[_0x5a8f17(0x229)](0x0);});for(var _0x4d3f2a=0x0;_0x4d3f2a<_0x7f2d8b;_0x4d3f2a++){for(var _0x7e2d4f=_0x4d3f2a+0x1;_0x7e2d4f<_0x7f2d8b;_0x7e2d4f++){var _0x3c7f1a=_0x3a7f1b[_0x4d3f2a][_0x5a8f17(0x22b)](_0x3a7f1b[_0x7e2d4f]);_0x2e8f4c[_0x4d3f2a][_0x7e2d4f]=_0x3c7f1a,_0x2e8f4c[_0x7e2d4f][_0x4d3f2a]=_0x3c7f1a;}}var _0x2e5f9c=Infinity,_0x5e9f8c=null;for(var _0x8e3f2d=0x0;_0x8e3f2d<_0x7f2d8b;_0x8e3f2d++){var _0x6e4f3a=new Uint8Array(_0x7f2d8b),_0x9e3f7d=[_0x8e3f2d];_0x6e4f3a[_0x8e3f2d]=0x1;var _0x2f9e5c=0x0,_0x4e2d3c=_0x8e3f2d;for(var _0x3e7f8a=0x1;_0x3e7f8a<_0x7f2d8b;_0x3e7f8a++){var _0x2e4f8d=-0x1,_0x7e5f3d=Infinity;for(var _0x6f3e5a=0x0;_0x6f3e5a<_0x7f2d8b;_0x6f3e5a++){if(!_0x6e4f3a[_0x6f3e5a]){var _0x3f5e8a=_0x2e8f4c[_0x4e2d3c][_0x6f3e5a];if(_0x3f5e8a<_0x7e5f3d){_0x7e5f3d=_0x3f5e8a,_0x2e4f8d=_0x6f3e5a;}}}_0x9e3f7d['push'](_0x2e4f8d),_0x6e4f3a[_0x2e4f8d]=0x1,_0x2f9e5c+=_0x7e5f3d,_0x4e2d3c=_0x2e4f8d;}_0x2f9e5c+=_0x2e8f4c[_0x4e2d3c][_0x9e3f7d[0x0]];if(_0x2f9e5c<_0x2e5f9c){_0x2e5f9c=_0x2f9e5c,_0x5e9f8c=[..._0x9e3f7d];}}if(accuracyMode===_0x5a8f17(0x24d)&&_0x5e9f8c&&_0x7f2d8b>0x3){var _0x3e5f8a=twoOpt(_0x3a7f1b,_0x5e9f8c,_0x2e8f4c);_0x5e9f8c=_0x3e5f8a[_0x5a8f17(0x25a)],_0x2e5f9c=_0x3e5f8a['dist'];}return{'route':_0x5e9f8c['map'](function(_0x2f9e5c){return _0x3a7f1b[_0x2f9e5c];}),'dist':_0x2e5f9c};}
-function computeMSTLowerBound(_0x3a7f1b){var _0x5a8f17=_0x26c7,_0x7f2d8b=_0x3a7f1b[_0x5a8f17(0x239)];if(_0x7f2d8b<=0x1)return 0x0;if(_0x7f2d8b===0x2)return _0x3a7f1b[0x0][_0x5a8f17(0x22b)](_0x3a7f1b[0x1])*0x2;var _0x4e3d2c=Array(_0x7f2d8b)['fill']()['map'](function(){return Array(_0x7f2d8b)[_0x5a8f17(0x229)](0x0);});for(var _0x2e8f4c=0x0;_0x2e8f4c<_0x7f2d8b;_0x2e8f4c++){for(var _0x4d3f2a=_0x2e8f4c+0x1;_0x4d3f2a<_0x7f2d8b;_0x4d3f2a++){var _0x7e2d4f=_0x3a7f1b[_0x2e8f4c][_0x5a8f17(0x22b)](_0x3a7f1b[_0x4d3f2a]);_0x4e3d2c[_0x2e8f4c][_0x4d3f2a]=_0x7e2d4f,_0x4e3d2c[_0x4d3f2a][_0x2e8f4c]=_0x7e2d4f;}}var _0x3c7f1a=new Uint8Array(_0x7f2d8b),_0x2e5f9c=Array(_0x7f2d8b)['fill'](Infinity);_0x2e5f9c[0x0]=0x0;var _0x5e9f8c=0x0;for(var _0x8e3f2d=0x0;_0x8e3f2d<_0x7f2d8b;_0x8e3f2d++){var _0x6e4f3a=-0x1,_0x9e3f7d=Infinity;for(var _0x2f9e5c=0x0;_0x2f9e5c<_0x7f2d8b;_0x2f9e5c++){if(!_0x3c7f1a[_0x2f9e5c]&&_0x2e5f9c[_0x2f9e5c]<_0x9e3f7d){_0x9e3f7d=_0x2e5f9c[_0x2f9e5c],_0x6e4f3a=_0x2f9e5c;}}if(_0x6e4f3a===-0x1)break;_0x3c7f1a[_0x6e4f3a]=0x1,_0x5e9f8c+=_0x9e3f7d;for(var _0x4e2d3c=0x0;_0x4e2d3c<_0x7f2d8b;_0x4e2d3c++){if(!_0x3c7f1a[_0x4e2d3c]&&_0x4e3d2c[_0x6e4f3a][_0x4e2d3c]<_0x2e5f9c[_0x4e2d3c]){_0x2e5f9c[_0x4e2d3c]=_0x4e3d2c[_0x6e4f3a][_0x4e2d3c];}}}var _0x3e7f8a=Infinity;for(var _0x2e4f8d=0x0;_0x2e4f8d<_0x7f2d8b;_0x2e4f8d++){for(var _0x7e5f3d=_0x2e4f8d+0x1;_0x7e5f3d<_0x7f2d8b;_0x7e5f3d++){if(_0x4e3d2c[_0x2e4f8d][_0x7e5f3d]<_0x3e7f8a){_0x3e7f8a=_0x4e3d2c[_0x2e4f8d][_0x7e5f3d];}}}return _0x5e9f8c+(_0x3e7f8a===Infinity?0x0:_0x3e7f8a*0.5);}
-async function geocodeAddress(){var _0x5a8f17=_0x26c7,_0x4e3d2c=document[_0x5a8f17(0x234)]('addressInput')['value']['trim']();if(!_0x4e3d2c){showToast('❌ ' + (_0x5a8f17(0x23c) === 'ru' ? 'Введите адрес' : 'Enter address'));return;}showToast('🔍 ' + (_0x5a8f17(0x23c) === 'ru' ? 'Поиск...' : 'Searching...'));var _0x2e8f4c=[{'name':_0x5a8f17(0x24a),'url':'https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(_0x4e3d2c)+'&limit=1'},{'name':_0x5a8f17(0x261),'url':'https://photon.komoot.io/api/?q='+encodeURIComponent(_0x4e3d2c)+'&limit=1'}];for(var _0x4d3f2a of _0x2e8f4c){try{var _0x7e2d4f=await fetch(_0x4d3f2a['url'],{'headers':{'Accept':'application/json'}});if(!_0x7e2d4f['ok'])continue;var _0x3c7f1a=await _0x7e2d4f[_0x5a8f17(0x24e)]();var _0x2e5f9c,_0x5e9f8c,_0x8e3f2d;if(_0x4d3f2a['name']===_0x5a8f17(0x24a)&&_0x3c7f1a['length']>0x0){_0x2e5f9c=parseFloat(_0x3c7f1a[0x0]['lat']);_0x5e9f8c=parseFloat(_0x3c7f1a[0x0][_0x5a8f17(0x24b)]);_0x8e3f2d=_0x3c7f1a[0x0]['display_name'];}else if(_0x4d3f2a['name']===_0x5a8f17(0x261)&&_0x3c7f1a['features']&&_0x3c7f1a[_0x5a8f17(0x260)]['length']>0x0){_0x2e5f9c=_0x3c7f1a[_0x5a8f17(0x260)][0x0]['geometry'][_0x5a8f17(0x255)][0x1];_0x5e9f8c=_0x3c7f1a[_0x5a8f17(0x260)][0x0]['geometry'][_0x5a8f17(0x255)][0x0];_0x8e3f2d=_0x3c7f1a['features'][0x0]['properties'][_0x5a8f17(0x25e)]||_0x3c7f1a[_0x5a8f17(0x260)][0x0]['properties'][_0x5a8f17(0x23d)]||_0x4e3d2c;}else continue;if(_0x2e5f9c&&_0x5e9f8c){addPoint(_0x2e5f9c,_0x5e9f8c,_0x8e3f2d||_0x4e3d2c);document[_0x5a8f17(0x234)]('addressInput')[(_0x5a8f17(0x25b))]='';showToast('✅ ' + (_0x5a8f17(0x23c) === 'ru' ? 'Добавлено' : 'Added'));return;}}catch(_0x6e4f3a){continue;}}showToast('❌ ' + (_0x5a8f17(0x23c) === 'ru' ? 'Адрес не найден' : 'Address not found'));}
-function initMap(){var _0x5a8f17=_0x26c7;window[_0x5a8f17(0x22a)]=L[_0x5a8f17(0x23a)]('map')['setView']([0x37.75,0x25.62],0xa);L[_0x5a8f17(0x253)]('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{'attribution':'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB','subdomains':'abcd','maxZoom':0x13,'minZoom':0x3})['addTo'](_0x4e3d2c);_0x3a7f1b=L[_0x5a8f17(0x252)]()['addTo'](_0x4e3d2c);_0x7f2d8b=L[_0x5a8f17(0x252)]()[_0x5a8f17(0x24f)](_0x4e3d2c);_0x4e3d2c['on'](_0x5a8f17(0x23b),function(_0x2e5f9c){var _0x5e9f8c=_0x5a8f17;addPoint(_0x2e5f9c['latlng'][_0x5a8f17(0x263)],_0x2e5f9c['latlng'][_0x5a8f17(0x24b)]);showToast('📍 ' + (_0x5e9f8c(0x23c) === 'ru' ? 'Точка добавлена' : 'Point added'));});}
-function addPoint(_0x2e5f9c,_0x5e9f8c,_0x8e3f2d=null){var _0x5a8f17=_0x26c7,_0x6e4f3a=new MapPoint(_0x2e5f9c,_0x5e9f8c,_0x5f9a8d++,_0x8e3f2d);_0x4e3d2c['push'](_0x6e4f3a),updateAll(),_0x3a7f1b['clearLayers'](),document[_0x5a8f17(0x234)]('totalDist')[_0x5a8f17(0x25c)]='—',document[_0x5a8f17(0x234)]('accuracyVal')['innerHTML']='—',document[_0x5a8f17(0x234)]('lowerBound')['innerHTML']='—',document[_0x5a8f17(0x234)](_0x5a8f17(0x25d))[_0x5a8f17(0x25c)]=_0x5a8f17(0x256),updatePointsVisual();}
-function removePoint(_0x2e5f9c){var _0x5a8f17=_0x26c7;_0x4e3d2c['splice'](_0x2e5f9c,0x1),updateAll(),_0x3a7f1b[_0x5a8f17(0x24f)](),document[_0x5a8f17(0x234)]('totalDist')['innerHTML']='—',document[_0x5a8f17(0x234)]('accuracyVal')['innerHTML']='—',document[_0x5a8f17(0x234)]('lowerBound')['innerHTML']='—',document[_0x5a8f17(0x234)](_0x5a8f17(0x25d))[_0x5a8f17(0x25c)]=_0x5a8f17(0x262),updatePointsVisual();}
-function updatePointsVisual(){var _0x5a8f17=_0x26c7;_0x7f2d8b['clearLayers']();_0x4e3d2c['forEach'](function(_0x3c7f1a,_0x2e5f9c){var _0x5e9f8c=_0x5a8f17,_0x8e3f2d=_0x3c7f1a[_0x5a8f17(0x225)]?'<b>'+(0x1+_0x2e5f9c)+'</b><br>'+_0x3c7f1a[_0x5a8f17(0x225)]:'<b>'+(0x1+_0x2e5f9c)+'</b><br>'+_0x3c7f1a[_0x5a8f17(0x263)][_0x5a8f17(0x250)](0x5)+'°, '+_0x3c7f1a['lng'][_0x5a8f17(0x250)](0x5)+'°';var _0x6e4f3a=L['marker']([_0x3c7f1a['lat'],_0x3c7f1a[_0x5a8f17(0x24b)]],{'icon':L[_0x5a8f17(0x246)]({'html':'<div style="background:#ff6600; color:white; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; border:2px solid white;">'+(0x1+_0x2e5f9c)+'</div>','iconSize':[0x1a,0x1a]})})['addTo'](_0x7f2d8b);_0x6e4f3a['bindPopup'](_0x8e3f2d);});}
-function updatePointsList(){var _0x5a8f17=_0x26c7,_0x4e3d2c=document[_0x5a8f17(0x234)]('pointsList');if(points[_0x5a8f17(0x239)]===0x0){_0x4e3d2c[_0x5a8f17(0x25c)]='<div style="color:#666;text-align:center;">'+(_0x5a8f17(0x23c)==='ru'?'Нет точек. Кликните на карту':_0x5a8f17(0x25f))+'</div>';return;}_0x4e3d2c[_0x5a8f17(0x25c)]=points['map'](function(_0x7e2d4f,_0x3c7f1a){var _0x2e5f9c=_0x5a8f17;return'<div class="point-item" onclick="removePoint('+_0x3c7f1a+')"><span><span class="point-num">'+(0x1+_0x3c7f1a)+'</span> <span style="font-size:9px;">'+(_0x7e2d4f[_0x2e5f9c(0x225)]?_0x7e2d4f[_0x2e5f9c(0x225)][_0x2e5f9c(0x227)](0x0,0x23):_0x7e2d4f['lat'][_0x2e5f9c(0x250)](0x3)+', '+_0x7e2d4f['lng'][_0x2e5f9c(0x250)](0x3))+'</span></span><span style="color:#ff8866;">✖</span></div>';})['join']('');}
-function drawRoute(_0x2e5f9c){var _0x5a8f17=_0x26c7;_0x3a7f1b[_0x5a8f17(0x24f)]();if(!_0x2e5f9c||_0x2e5f9c[_0x5a8f17(0x239)]<0x2)return;var _0x5e9f8c=_0x2e5f9c['map'](function(_0x3c7f1a){return[_0x3c7f1a[_0x5a8f17(0x263)],_0x3c7f1a[_0x5a8f17(0x24b)]];});L['polyline'](_0x5e9f8c,{'color':_0x5a8f17(0x254),'weight':0x4,'opacity':0.95})[_0x5a8f17(0x24f)](_0x3a7f1b);if(_0x2e5f9c[_0x5a8f17(0x239)]>0x2){L[_0x5a8f17(0x22e)]([..._0x5e9f8c,_0x5e9f8c[0x0]],{'color':_0x5a8f17(0x254),'weight':0x4,'opacity':0.5,'dashArray':'5,10'})[_0x5a8f17(0x24f)](_0x3a7f1b);}for(var _0x8e3f2d=0x0;_0x8e3f2d<_0x2e5f9c[_0x5a8f17(0x239)];_0x8e3f2d++){var _0x6e4f3a=_0x2e5f9c[_0x8e3f2d],_0x9e3f7d=_0x2e5f9c[(_0x8e3f2d+0x1)%_0x2e5f9c[_0x5a8f17(0x239)]],_0x2f9e5c=(_0x6e4f3a[_0x5a8f17(0x263)]+_0x9e3f7d[_0x5a8f17(0x263)])/0x2,_0x4e2d3c=(_0x6e4f3a[_0x5a8f17(0x24b)]+_0x9e3f7d['lng'])/0x2,_0x3e7f8a=Math[_0x5a8f17(0x247)](_0x9e3f7d[_0x5a8f17(0x263)]-_0x6e4f3a[_0x5a8f17(0x263)],_0x9e3f7d['lng']-_0x6e4f3a[_0x5a8f17(0x24b)])*0xb4/0xb4;L[_0x5a8f17(0x23f)]([_0x2f9e5c,_0x4e2d3c],{'icon':L[_0x5a8f17(0x246)]({'html':'<div style="transform:rotate('+_0x3e7f8a+'deg); font-size:14px; color:#88ff88;">➤</div>','iconSize':[0xa,0xa]})})['addTo'](_0x3a7f1b);}}
-function optimizeAndDrawRoute(){var _0x5a8f17=_0x26c7;if(points[_0x5a8f17(0x239)]<0x2){showToast('❌ ' + (_0x5a8f17(0x23c) === 'ru' ? 'Добавьте хотя бы 2 точки' : 'Add at least 2 points'));return;}document[_0x5a8f17(0x234)](_0x5a8f17(0x25d))[_0x5a8f17(0x25c)]=_0x5a8f17(0x257);var _0x4e3d2c=performance['now'](),_0x2e8f4c=solveTSP(points),_0x4d3f2a=performance['now'](),_0x7e2d4f=computeMSTLowerBound(points),_0x3c7f1a=Math['min'](0x63.63,(0x3e8/_0x2e8f4c['dist'])*0x64),_0x2e5f9c=((_0x2e8f4c['dist']-_0x7e2d4f)/_0x7e2d4f)*0x64;document[_0x5a8f17(0x234)]('totalDist')[_0x5a8f17(0x25c)]=_0x2e8f4c['dist'][_0x5a8f17(0x250)](0x2),document[_0x5a8f17(0x234)]('lowerBound')['innerHTML']=_0x7e2d4f['toFixed'](0x2),document[_0x5a8f17(0x234)]('totalTime')['innerHTML']=(_0x4d3f2a-_0x4e3d2c)[_0x5a8f17(0x250)](0x2),document[_0x5a8f17(0x234)]('deviation')['innerHTML']='+'+_0x2e5f9c['toFixed'](0x2)+'%';var _0x5e9f8c='';_0x3c7f1a>=0x5a?_0x5e9f8c='accuracy-high':_0x3c7f1a>=0x4b?_0x5e9f8c='accuracy-mid':_0x5e9f8c='accuracy-low';document[_0x5a8f17(0x234)]('accuracyVal')['innerHTML']=_0x3c7f1a['toFixed'](0x2)+'%',document['getElementById']('status')['innerHTML']=_0x5a8f17(0x259),drawRoute(_0x2e8f4c['route']),updatePointsVisual();var _0x8e3f2d=L[_0x5a8f17(0x245)](_0x2e8f4c['route']['map'](function(_0x2f9e5c){return[_0x2f9e5c[_0x5a8f17(0x263)],_0x2f9e5c['lng']];}));_0x4e3d2c[_0x5a8f17(0x22f)](_0x8e3f2d,{'padding':[0x1e,0x1e]});}
-function clearAllPoints(){var _0x5a8f17=_0x26c7;points=[],_0x5f9a8d=0x0,_0x7f2d8b['clearLayers'](),_0x3a7f1b['clearLayers'](),updatePointsList(),updatePointsVisual(),document[_0x5a8f17(0x234)]('totalPoints')[_0x5a8f17(0x25c)]='0',document['getElementById']('totalDist')['innerHTML']='—',document[_0x5a8f17(0x234)]('accuracyVal')['innerHTML']='—',document['getElementById']('lowerBound')['innerHTML']='—',document[_0x5a8f17(0x234)]('totalTime')['innerHTML']='—',document['getElementById']('status')['innerHTML']=_0x5a8f17(0x230);}
-function updateAll(){var _0x5a8f17=_0x26c7;document[_0x5a8f17(0x234)]('totalPoints')['innerHTML']=points[_0x5a8f17(0x239)],updatePointsList(),updatePointsVisual();}
-function showToast(_0x2e5f9c){var _0x5a8f17=_0x26c7,_0x5e9f8c=document['getElementById'](_0x5a8f17(0x23e));_0x5e9f8c[_0x5a8f17(0x25c)]=_0x2e5f9c,_0x5e9f8c[_0x5a8f17(0x238)]['opacity']='1',setTimeout(function(){_0x5e9f8c[_0x5a8f17(0x238)]['opacity']=_0x5a8f17(0x240);},0x7d0);}
-function setDistanceMode(_0x2e5f9c){var _0x5a8f17=_0x26c7;distanceMode=_0x2e5f9c,document[_0x5a8f17(0x234)]('modeEuclid')[_0x5a8f17(0x23c)]['toggle'](_0x5a8f17(0x23c),_0x2e5f9c===_0x5a8f17(0x235)),document[_0x5a8f17(0x234)]('modeManhattan')[_0x5a8f17(0x23c)]['toggle']('active',_0x2e5f9c===_0x5a8f17(0x24a));if(points['length']>0x1)optimizeAndDrawRoute();else showToast((_0x5a8f17(0x23c)==='ru'?_0x5a8f17(0x25a):_0x5a8f17(0x266))+' '+(_0x2e5f9c===_0x5a8f17(0x235)?(_0x5a8f17(0x23c)==='ru'?_0x5a8f17(0x252):_0x5a8f17(0x264)):(_0x5a8f17(0x23c)==='ru'?_0x5a8f17(0x253):_0x5a8f17(0x265))));}
-function setAccuracyMode(_0x2e5f9c){var _0x5a8f17=_0x26c7;accuracyMode=_0x2e5f9c,document['getElementById']('modeFast')['classList'][_0x5a8f17(0x23c)](_0x5a8f17(0x23c),_0x2e5f9c===_0x5a8f17(0x251)),document['getElementById']('modeAccurate')['classList'][_0x5a8f17(0x23c)]('active',_0x2e5f9c===_0x5a8f17(0x24d));if(points[_0x5a8f17(0x239)]>0x1)optimizeAndDrawRoute();else showToast((_0x5a8f17(0x23c)==='ru'?_0x5a8f17(0x261):_0x5a8f17(0x267))+' '+(_0x2e5f9c===_0x5a8f17(0x251)?(_0x5a8f17(0x23c)==='ru'?_0x5a8f17(0x255):_0x5a8f17(0x268)):(_0x5a8f17(0x23c)==='ru'?_0x5a8f17(0x257):_0x5a8f17(0x269))));}
-window['removePoint']=removePoint,document['getElementById']('modeEuclid')[_0x26c7(0x236)]=function(){setDistanceMode('euclidean');},document['getElementById']('modeManhattan')['onclick']=function(){setDistanceMode('manhattan');},document['getElementById']('modeFast')[_0x26c7(0x236)]=function(){setAccuracyMode('fast');},document['getElementById']('modeAccurate')[_0x26c7(0x236)]=function(){setAccuracyMode('accurate');},document[_0x26c7(0x234)]('runBtn')[_0x26c7(0x236)]=optimizeAndDrawRoute,document['getElementById']('clearBtn')['onclick']=clearAllPoints,document['getElementById']('geocodeBtn')['onclick']=geocodeAddress;
-initMap();
-updateAll();
-showToast('✅ OptiRoute готов! Кликните на карту или введите адрес');
+    // ========== ПЕРЕВОДЫ ==========
+    const translations = {
+        ru: {
+            tagline: "Бесплатная оптимизация маршрутов для доставки, путешествий и логистики",
+            subtagline: "TSP решатель с точностью до 95% | До 100 точек | По адресу или кликом",
+            feature1_title: "Бесплатно", feature1_desc: "Никаких скрытых платежей",
+            feature2_title: "Точность до 95%", feature2_desc: "2-opt оптимизация",
+            feature3_title: "Поиск по адресу", feature3_desc: "Введите адрес",
+            feature4_title: "Мгновенно", feature4_desc: "Расчёт за секунды",
+            calc_title: "📊 Построить маршрут",
+            stat_points: "Точек", stat_distance: "км", stat_accuracy: "Точность", stat_time: "мс",
+            address_placeholder: "Москва, Красная площадь",
+            mode_euclid: "📏 Евклидово", mode_manhattan: "📐 Манхэттен", mode_fast: "⚡ FAST", mode_accurate: "🎯 Точный",
+            btn_optimize: "🚀 Оптимизировать", btn_clear: "🗑️ Очистить",
+            no_points: "Нет точек. Кликните на карту", lower_bound_label: "📐 Нижняя граница:", status_ready: "Готов",
+            how_title: "🔧 Как это работает", how_desc: "OptiRoute решает задачу коммивояжёра — находит кратчайший маршрут через все точки.",
+            for_who_title: "💡 Для кого", for_who_1: "🚚 Курьеры и доставка", for_who_2: "🏢 Логистика", for_who_3: "✈️ Путешественники", for_who_4: "📚 Студенты",
+            advantages_title: "⚡ Преимущества", adv_1: "✅ Бесплатно", adv_2: "✅ Без регистрации", adv_3: "✅ Поиск по адресу", adv_4: "✅ 2 режима",
+            faq_title: "❓ Частые вопросы", faq1_q: "▶ Сколько точек?", faq1_a: "До 100, рекомендуется до 50.", faq2_q: "▶ Какой режим?", faq2_a: "FAST — быстро, Точный — качественно.", faq3_q: "▶ Как удалить?", faq3_a: "Кликните на точку в списке.",
+            accuracy_title: "📊 О точности", accuracy_desc: "Точность = нижняя граница / решение. 85%+ — отлично!", accuracy_note: "🎯 Точность 85%+ — отлично!",
+            contacts_title: "📞 Контакты", contacts_desc: "По вопросам сотрудничества:", made_in: "Сделано в РФ 🇷🇺", footer_text: "Бесплатный TSP калькулятор"
+        },
+        en: {
+            tagline: "Free route optimization for delivery, travel and logistics",
+            subtagline: "TSP solver with up to 95% accuracy | Up to 100 points | By address or click",
+            feature1_title: "Free", feature1_desc: "No hidden fees",
+            feature2_title: "95% Accuracy", feature2_desc: "2-opt optimization",
+            feature3_title: "Address Search", feature3_desc: "Enter address",
+            feature4_title: "Instant", feature4_desc: "Fast calculation",
+            calc_title: "📊 Build Route",
+            stat_points: "Points", stat_distance: "km", stat_accuracy: "Accuracy", stat_time: "ms",
+            address_placeholder: "Moscow, Red Square",
+            mode_euclid: "📏 Euclidean", mode_manhattan: "📐 Manhattan", mode_fast: "⚡ FAST", mode_accurate: "🎯 Accurate",
+            btn_optimize: "🚀 Optimize", btn_clear: "🗑️ Clear All",
+            no_points: "No points. Click on map", lower_bound_label: "📐 Lower bound:", status_ready: "Ready",
+            how_title: "🔧 How it works", how_desc: "OptiRoute solves TSP — finds shortest route through all points.",
+            for_who_title: "💡 For whom", for_who_1: "🚚 Couriers", for_who_2: "🏢 Logistics", for_who_3: "✈️ Travelers", for_who_4: "📚 Students",
+            advantages_title: "⚡ Advantages", adv_1: "✅ Free", adv_2: "✅ No registration", adv_3: "✅ Address search", adv_4: "✅ 2 modes",
+            faq_title: "❓ FAQ", faq1_q: "▶ Max points?", faq1_a: "Up to 100, 50 recommended.", faq2_q: "▶ Which mode?", faq2_a: "FAST = quick, Accurate = quality.", faq3_q: "▶ How to delete?", faq3_a: "Click on point in list.",
+            accuracy_title: "📊 About accuracy", accuracy_desc: "Accuracy = lower bound / solution. 85%+ is excellent!", accuracy_note: "🎯 85%+ accuracy is excellent!",
+            contacts_title: "📞 Contacts", contacts_desc: "For partnership:", made_in: "Made in Russia 🇷🇺", footer_text: "Free TSP Route Calculator"
+        }
+    };
+    
+    let currentLang = 'ru';
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (translations[lang][key]) {
+                if (el.tagName === 'INPUT') el.placeholder = translations[lang][key];
+                else el.textContent = translations[lang][key];
+            }
+        });
+        const addrInput = document.getElementById('addressInput');
+        if (addrInput) addrInput.placeholder = translations[lang].address_placeholder;
+    }
+    
+    // ========== TSP АЛГОРИТМ ==========
+    let distanceMode = 'euclidean';
+    let accuracyMode = 'fast';
+    
+    function distanceEuclidean(a, b) {
+        const dx = (a.lng - b.lng) * 85;
+        const dy = (a.lat - b.lat) * 111;
+        return Math.hypot(dx, dy);
+    }
+    function distanceManhattan(a, b) {
+        return Math.abs((a.lng - b.lng) * 85) + Math.abs((a.lat - b.lat) * 111);
+    }
+    function distance(a, b) {
+        return distanceMode === 'euclidean' ? distanceEuclidean(a, b) : distanceManhattan(a, b);
+    }
+    
+    class MapPoint {
+        constructor(lat, lng, id, address = null) {
+            this.lat = lat; this.lng = lng; this.id = id; this.address = address;
+        }
+        distTo(other) { return distance(this, other); }
+    }
+    
+    function twoOpt(points, routeIndices, distMatrix) {
+        const n = routeIndices.length;
+        let improved = true;
+        let currentRoute = [...routeIndices];
+        let currentDist = 0;
+        for (let i = 0; i < n - 1; i++) currentDist += distMatrix[currentRoute[i]][currentRoute[i+1]];
+        currentDist += distMatrix[currentRoute[n-1]][currentRoute[0]];
+        while (improved) {
+            improved = false;
+            for (let i = 1; i < n - 2; i++) {
+                for (let j = i + 1; j < n - 1; j++) {
+                    const a = currentRoute[i-1], b = currentRoute[i], c = currentRoute[j], d = currentRoute[j+1];
+                    const oldDist = distMatrix[a][b] + distMatrix[c][d];
+                    const newDist = distMatrix[a][c] + distMatrix[b][d];
+                    if (newDist < oldDist - 1e-6) {
+                        currentRoute = [...currentRoute.slice(0, i), ...currentRoute.slice(i, j+1).reverse(), ...currentRoute.slice(j+1)];
+                        currentDist = currentDist - oldDist + newDist;
+                        improved = true;
+                    }
+                }
+            }
+        }
+        return { route: currentRoute, dist: currentDist };
+    }
+    
+    function solveTSP(points) {
+        const n = points.length;
+        if (n <= 1) return { route: points.slice(), dist: 0 };
+        if (n === 2) return { route: points.slice(), dist: points[0].distTo(points[1]) * 2 };
+        if (n <= 8) {
+            let bestDist = Infinity, bestRoute = null;
+            const indices = Array.from({length: n}, (_, i) => i);
+            const permute = (arr, start) => {
+                if (start === arr.length - 1) {
+                    let dist = 0;
+                    for (let i = 0; i < arr.length - 1; i++) dist += points[arr[i]].distTo(points[arr[i + 1]]);
+                    dist += points[arr[arr.length - 1]].distTo(points[arr[0]]);
+                    if (dist < bestDist) { bestDist = dist; bestRoute = [...arr]; }
+                    return;
+                }
+                for (let i = start; i < arr.length; i++) {
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                    permute(arr, start + 1);
+                    [arr[start], arr[i]] = [arr[i], arr[start]];
+                }
+            };
+            permute([...indices], 0);
+            return { route: bestRoute.map(i => points[i]), dist: bestDist };
+        }
+        const distMatrix = Array(n).fill().map(() => Array(n).fill(0));
+        for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) { const d = points[i].distTo(points[j]); distMatrix[i][j] = d; distMatrix[j][i] = d; }
+        let bestDist = Infinity, bestRouteIndices = null;
+        for (let startIdx = 0; startIdx < n; startIdx++) {
+            const visited = new Uint8Array(n);
+            const route = [startIdx];
+            visited[startIdx] = 1;
+            let totalDist = 0, curr = startIdx;
+            for (let step = 1; step < n; step++) {
+                let bestIdx = -1, bestD = Infinity;
+                for (let i = 0; i < n; i++) if (!visited[i]) { const d = distMatrix[curr][i]; if (d < bestD) { bestD = d; bestIdx = i; } }
+                route.push(bestIdx);
+                visited[bestIdx] = 1;
+                totalDist += bestD;
+                curr = bestIdx;
+            }
+            totalDist += distMatrix[curr][route[0]];
+            if (totalDist < bestDist) { bestDist = totalDist; bestRouteIndices = [...route]; }
+        }
+        if (accuracyMode === 'accurate' && bestRouteIndices && n > 3) {
+            const optimized = twoOpt(points, bestRouteIndices, distMatrix);
+            bestRouteIndices = optimized.route;
+            bestDist = optimized.dist;
+        }
+        return { route: bestRouteIndices.map(i => points[i]), dist: bestDist };
+    }
+    
+    function computeMSTLowerBound(points) {
+        const n = points.length;
+        if (n <= 1) return 0;
+        if (n === 2) return points[0].distTo(points[1]) * 2;
+        const dist = Array(n).fill().map(() => Array(n).fill(0));
+        for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) { const d = points[i].distTo(points[j]); dist[i][j] = d; dist[j][i] = d; }
+        const visited = new Uint8Array(n);
+        const minEdge = Array(n).fill(Infinity);
+        minEdge[0] = 0;
+        let mstWeight = 0;
+        for (let i = 0; i < n; i++) {
+            let u = -1, minVal = Infinity;
+            for (let j = 0; j < n; j++) if (!visited[j] && minEdge[j] < minVal) { minVal = minEdge[j]; u = j; }
+            if (u === -1) break;
+            visited[u] = 1;
+            mstWeight += minVal;
+            for (let v = 0; v < n; v++) if (!visited[v] && dist[u][v] < minEdge[v]) minEdge[v] = dist[u][v];
+        }
+        let minEdgeWeight = Infinity;
+        for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) if (dist[i][j] < minEdgeWeight) minEdgeWeight = dist[i][j];
+        return mstWeight + (minEdgeWeight === Infinity ? 0 : minEdgeWeight * 0.5);
+    }
+    
+    async function geocodeAddress() {
+        const address = document.getElementById('addressInput').value.trim();
+        if (!address) { showToast('❌ ' + (currentLang === 'ru' ? 'Введите адрес' : 'Enter address')); return; }
+        showToast('🔍 ' + (currentLang === 'ru' ? 'Поиск...' : 'Searching...'));
+        const sources = [
+            { name: 'Nominatim', url: `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1` },
+            { name: 'Photon', url: `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1` }
+        ];
+        for (const source of sources) {
+            try {
+                const response = await fetch(source.url, { headers: { 'Accept': 'application/json' } });
+                if (!response.ok) continue;
+                const data = await response.json();
+                let lat, lon, displayName;
+                if (source.name === 'Nominatim' && data.length > 0) { lat = parseFloat(data[0].lat); lon = parseFloat(data[0].lon); displayName = data[0].display_name; }
+                else if (source.name === 'Photon' && data.features && data.features.length > 0) { lat = data.features[0].geometry.coordinates[1]; lon = data.features[0].geometry.coordinates[0]; displayName = data.features[0].properties.name || address; }
+                else continue;
+                if (lat && lon) { addPoint(lat, lon, displayName || address); document.getElementById('addressInput').value = ''; showToast('✅ ' + (currentLang === 'ru' ? 'Добавлено' : 'Added')); return; }
+            } catch(e) { continue; }
+        }
+        showToast('❌ ' + (currentLang === 'ru' ? 'Адрес не найден' : 'Address not found'));
+    }
+    
+    let map, routeLayer, pointLayer;
+    let points = [];
+    let nextId = 0;
+    
+    function initMap() {
+        map = L.map('map').setView([55.75, 37.62], 10);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd', maxZoom: 19, minZoom: 3
+        }).addTo(map);
+        routeLayer = L.layerGroup().addTo(map);
+        pointLayer = L.layerGroup().addTo(map);
+        map.on('click', (e) => { addPoint(e.latlng.lat, e.latlng.lng); showToast('📍 ' + (currentLang === 'ru' ? 'Точка добавлена' : 'Point added')); });
+    }
+    
+    function addPoint(lat, lng, address = null) {
+        const newPoint = new MapPoint(lat, lng, nextId++, address);
+        points.push(newPoint);
+        updateAll();
+        routeLayer.clearLayers();
+        document.getElementById('totalDist').innerHTML = '—';
+        document.getElementById('accuracyVal').innerHTML = '—';
+        document.getElementById('lowerBound').innerHTML = '—';
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? 'Точка добавлена' : 'Point added';
+        updatePointsVisual();
+    }
+    
+    function removePoint(idx) {
+        points.splice(idx, 1);
+        updateAll();
+        routeLayer.clearLayers();
+        document.getElementById('totalDist').innerHTML = '—';
+        document.getElementById('accuracyVal').innerHTML = '—';
+        document.getElementById('lowerBound').innerHTML = '—';
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? 'Точка удалена' : 'Point removed';
+        updatePointsVisual();
+    }
+    
+    function updatePointsVisual() {
+        pointLayer.clearLayers();
+        points.forEach((p, idx) => {
+            const popupContent = p.address ? `<b>${idx+1}</b><br>${p.address}` : `<b>${idx+1}</b><br>${p.lat.toFixed(5)}°, ${p.lng.toFixed(5)}°`;
+            const marker = L.marker([p.lat, p.lng], {
+                icon: L.divIcon({ html: `<div style="background:#ff6600; color:white; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; border:2px solid white;">${idx+1}</div>`, iconSize: [28, 28] })
+            }).addTo(pointLayer);
+            marker.bindPopup(popupContent);
+        });
+    }
+    
+    function updatePointsList() {
+        const listDiv = document.getElementById('pointsList');
+        if (points.length === 0) { 
+            listDiv.innerHTML = '<div style="color:#666;text-align:center;">' + (currentLang === 'ru' ? 'Нет точек. Кликните на карту' : 'No points. Click on map') + '</div>'; 
+            return; 
+        }
+        listDiv.innerHTML = points.map((p, idx) => `
+            <div class="point-item" onclick="removePoint(${idx})">
+                <span><span class="point-num">${idx+1}</span> <span style="font-size:10px;">${p.address ? p.address.substring(0,30) : p.lat.toFixed(3)+', '+p.lng.toFixed(3)}</span></span>
+                <span style="color:#ff8866; font-size:14px;">✖</span>
+            </div>
+        `).join('');
+    }
+    
+    function drawRoute(routePoints) {
+        routeLayer.clearLayers();
+        if (!routePoints || routePoints.length < 2) return;
+        const latlngs = routePoints.map(p => [p.lat, p.lng]);
+        L.polyline(latlngs, { color: '#ffaa44', weight: 4, opacity: 0.95 }).addTo(routeLayer);
+        if (routePoints.length > 2) {
+            L.polyline([...latlngs, latlngs[0]], { color: '#ffaa44', weight: 4, opacity: 0.5, dashArray: '5,10' }).addTo(routeLayer);
+        }
+        for (let i = 0; i < routePoints.length; i++) {
+            const from = routePoints[i], to = routePoints[(i+1)%routePoints.length];
+            const midLat = (from.lat+to.lat)/2, midLng = (from.lng+to.lng)/2;
+            const angle = Math.atan2(to.lat-from.lat, to.lng-from.lng)*180/Math.PI;
+            L.marker([midLat, midLng], { icon: L.divIcon({ html: `<div style="transform:rotate(${angle}deg); font-size:14px; color:#88ff88;">➤</div>`, iconSize: [12,12] }) }).addTo(routeLayer);
+        }
+    }
+    
+    function optimizeAndDrawRoute() {
+        if (points.length < 2) { showToast('❌ ' + (currentLang === 'ru' ? 'Добавьте хотя бы 2 точки' : 'Add at least 2 points')); return; }
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? '🔄 Оптимизация...' : '🔄 Optimizing...';
+        const start = performance.now();
+        const result = solveTSP(points);
+        const end = performance.now();
+        const lowerBound = computeMSTLowerBound(points);
+        const accuracy = Math.min(99.99, (lowerBound / result.dist) * 100);
+        
+        document.getElementById('totalDist').innerHTML = result.dist.toFixed(2);
+        document.getElementById('lowerBound').innerHTML = lowerBound.toFixed(2);
+        document.getElementById('totalTime').innerHTML = (end - start).toFixed(2);
+        document.getElementById('accuracyVal').innerHTML = `${accuracy.toFixed(2)}%`;
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? '✅ Маршрут построен' : '✅ Route built';
+        
+        drawRoute(result.route);
+        updatePointsVisual();
+        const bounds = L.latLngBounds(result.route.map(p => [p.lat, p.lng]));
+        map.fitBounds(bounds, { padding: [30,30] });
+    }
+    
+    function clearAllPoints() {
+        points = []; nextId = 0;
+        pointLayer.clearLayers(); routeLayer.clearLayers();
+        updatePointsList(); updatePointsVisual();
+        document.getElementById('totalPoints').innerHTML = '0';
+        document.getElementById('totalDist').innerHTML = '—';
+        document.getElementById('accuracyVal').innerHTML = '—';
+        document.getElementById('lowerBound').innerHTML = '—';
+        document.getElementById('totalTime').innerHTML = '—';
+        document.getElementById('status').innerHTML = currentLang === 'ru' ? 'Все точки удалены' : 'All points cleared';
+    }
+    
+    function updateAll() {
+        document.getElementById('totalPoints').innerHTML = points.length;
+        updatePointsList();
+        updatePointsVisual();
+    }
+    
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', 2000);
+    }
+    
+    function setDistanceMode(mode) {
+        distanceMode = mode;
+        document.getElementById('modeEuclid').classList.toggle('active', mode === 'euclidean');
+        document.getElementById('modeManhattan').classList.toggle('active', mode === 'manhattan');
+        if (points.length > 1) optimizeAndDrawRoute();
+    }
+    
+    function setAccuracyMode(mode) {
+        accuracyMode = mode;
+        document.getElementById('modeFast').classList.toggle('active', mode === 'fast');
+        document.getElementById('modeAccurate').classList.toggle('active', mode === 'accurate');
+        if (points.length > 1) optimizeAndDrawRoute();
+    }
+    
+    function toggleFaq(el) {
+        const answer = el.nextElementSibling;
+        answer.classList.toggle('show');
+        el.innerHTML = (answer.classList.contains('show') ? '▼ ' : '▶ ') + (currentLang === 'ru' ? el.innerHTML.slice(2) : el.innerHTML.slice(2));
+    }
+    
+    window.removePoint = removePoint;
+    window.toggleFaq = toggleFaq;
+    
+    document.getElementById('modeEuclid').onclick = () => setDistanceMode('euclidean');
+    document.getElementById('modeManhattan').onclick = () => setDistanceMode('manhattan');
+    document.getElementById('modeFast').onclick = () => setAccuracyMode('fast');
+    document.getElementById('modeAccurate').onclick = () => setAccuracyMode('accurate');
+    document.getElementById('runBtn').onclick = optimizeAndDrawRoute;
+    document.getElementById('clearBtn').onclick = clearAllPoints;
+    document.getElementById('geocodeBtn').onclick = geocodeAddress;
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    });
+    
+    initMap();
+    updateAll();
+    setLanguage('ru');
+    showToast('✅ OptiRoute готов! Кликните на карту');
 </script>
-    <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109386905', 'ym');      ym(109386905, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true}); </script> <noscript><div><img src="https://mc.yandex.ru/watch/109386905" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
 </body>
 </html>
