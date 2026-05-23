@@ -34,4 +34,4 @@ the Software, subject to the following conditions:
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
    THE SOFTWARE.
 
-For commercial licensing inquiries, contact: nekosparry0727@outlook.com
+For commercial licensing inquiries, contact: github.com/koolkid90
