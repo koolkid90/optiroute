@@ -135,7 +135,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>OptiRoute</h1>
+        <h1>🗺️ OptiRoute</h1>
         <div class="tagline" data-i18n="tagline">Бесплатная оптимизация маршрутов</div>
     </div>
     
@@ -769,7 +769,7 @@
                 <div style="height: 20px;"></div>
                 <pre>${pointsList}</pre>
                 <div class="total">📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${totalDist} км</div>
-                <div style="margin-top: 30px; font-size: 11px; color: #666;">Создано с помощью OptiRoute - бесплатного TSP калькулятора</div>
+                <div style="margin-top: 30px; font-size: 11px; color: #666;">${currentLang === 'ru' ? 'Создано с помощью OptiRoute - бесплатного TSP калькулятора' : 'Created with OptiRoute - free TSP calculator'}</div>
             </body>
             </html>
         `);
@@ -784,23 +784,23 @@
         }
         
         let content = '';
-        content += `OptiRoute - ${currentLang === 'ru' ? 'Оптимальный маршрут' : 'Optimal route'}\n`;
-        content += `${currentLang === 'ru' ? 'Дата' : 'Date'}: ${new Date().toLocaleString()}\n`;
-        content += `${currentLang === 'ru' ? 'Режим расстояния' : 'Distance mode'}: ${distanceMode === 'euclidean' ? (currentLang === 'ru' ? 'Евклидово' : 'Euclidean') : (currentLang === 'ru' ? 'Манхэттенское' : 'Manhattan')}\n`;
-        content += `${currentLang === 'ru' ? 'Нижняя граница (MST)' : 'Lower bound (MST)'}: ${document.getElementById('lowerBound').innerHTML} км\n`;
-        content += `${currentLang === 'ru' ? 'Точность маршрута' : 'Route accuracy'}: ${document.getElementById('accuracyVal').innerHTML}\n`;
-        content += `${currentLang === 'ru' ? 'Примечание' : 'Note'}: ${currentLang === 'ru' ? 'Точность 60-85% — отличный результат для быстрого алгоритма. 85%+ — почти идеально.' : '60-85% accuracy is excellent for a fast algorithm. 85%+ is nearly perfect.'}\n`;
-        content += `==================================================\n\n`;
-        content += `${currentLang === 'ru' ? 'ПОРЯДОК ОБЪЕЗДА ТОЧЕК' : 'POINTS ORDER'}:\n\n`;
+        content += `OptiRoute - ${currentLang === 'ru' ? 'Оптимальный маршрут' : 'Optimal route'}\r\n`;
+        content += `${currentLang === 'ru' ? 'Дата' : 'Date'}: ${new Date().toLocaleString()}\r\n`;
+        content += `${currentLang === 'ru' ? 'Режим расстояния' : 'Distance mode'}: ${distanceMode === 'euclidean' ? (currentLang === 'ru' ? 'Евклидово' : 'Euclidean') : (currentLang === 'ru' ? 'Манхэттенское' : 'Manhattan')}\r\n`;
+        content += `${currentLang === 'ru' ? 'Нижняя граница (MST)' : 'Lower bound (MST)'}: ${document.getElementById('lowerBound').innerHTML} км\r\n`;
+        content += `${currentLang === 'ru' ? 'Точность маршрута' : 'Route accuracy'}: ${document.getElementById('accuracyVal').innerHTML}\r\n`;
+        content += `${currentLang === 'ru' ? 'Примечание' : 'Note'}: ${currentLang === 'ru' ? 'Точность 60-85% — отличный результат для быстрого алгоритма. 85%+ — почти идеально.' : '60-85% accuracy is excellent for a fast algorithm. 85%+ is nearly perfect.'}\r\n`;
+        content += `==================================================\r\n\r\n`;
+        content += `${currentLang === 'ru' ? 'ПОРЯДОК ОБЪЕЗДА ТОЧЕК' : 'POINTS ORDER'}:\r\n\r\n`;
         
         currentRoutePoints.forEach((point, idx) => {
-            content += `${idx + 1}. ${point.getDisplayName()}\n`;
+            content += `${idx + 1}. ${point.getDisplayName()}\r\n`;
         });
         
-        content += `\n==================================================\n`;
-        content += `📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${document.getElementById('totalDist').innerHTML} км\n`;
-        content += `⏱️ ${currentLang === 'ru' ? 'Время расчёта' : 'Calculation time'}: ${document.getElementById('totalTime').innerHTML} мс\n`;
-        content += `\n${currentLang === 'ru' ? 'Создано с помощью OptiRoute - бесплатного TSP калькулятора' : 'Created with OptiRoute - free TSP calculator'}\n`;
+        content += `\r\n==================================================\r\n`;
+        content += `📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${document.getElementById('totalDist').innerHTML} км\r\n`;
+        content += `⏱️ ${currentLang === 'ru' ? 'Время расчёта' : 'Calculation time'}: ${document.getElementById('totalTime').innerHTML} мс\r\n`;
+        content += `\r\n${currentLang === 'ru' ? 'Создано с помощью OptiRoute - бесплатного TSP калькулятора' : 'Created with OptiRoute - free TSP calculator'}\r\n`;
         
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
