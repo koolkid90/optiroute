@@ -24,6 +24,50 @@
         .header { text-align: center; padding: 24px 16px 16px; border-bottom: 1px solid #2a2f3f; margin-bottom: 20px; }
         .header h1 { font-size: 1.8rem; color: #ffaa44; letter-spacing: -0.5px; margin-bottom: 6px; }
         .header .tagline { font-size: 0.8rem; color: #8892b0; }
+        
+        /* Шкала точности */
+        .accuracy-scale {
+            background: #1a1f2e;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2f3f;
+        }
+        .accuracy-scale-title {
+            font-size: 0.7rem;
+            color: #8892b0;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .scale-bars {
+            display: flex;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .scale-low { background: #ff8866; flex: 0 0 30%; }
+        .scale-mid { background: #ffdd88; flex: 0 0 30%; }
+        .scale-high { background: #88ff88; flex: 0 0 40%; }
+        .scale-labels {
+            display: flex;
+            font-size: 0.6rem;
+            color: #8892b0;
+            margin-bottom: 8px;
+        }
+        .scale-labels span { flex: 1; text-align: center; }
+        .scale-low-label { color: #ff8866; }
+        .scale-mid-label { color: #ffdd88; }
+        .scale-high-label { color: #88ff88; }
+        .scale-note {
+            font-size: 0.65rem;
+            color: #5a6380;
+            text-align: center;
+            border-top: 1px solid #2a2f3f;
+            padding-top: 8px;
+            margin-top: 4px;
+        }
+        
         .features { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 24px; }
         .feature-card { background: #1a1f2e; border-radius: 16px; padding: 12px 16px; text-align: center; flex: 1; min-width: 100px; border: 1px solid #2a2f3f; }
         .feature-icon { font-size: 1.5rem; margin-bottom: 6px; }
@@ -121,6 +165,7 @@
             .container { padding: 0 12px; }
             .lang-btn { padding: 4px 10px; font-size: 10px; }
             .accuracy-tooltip { width: 180px; font-size: 9px; left: 0; transform: none; }
+            .scale-labels { font-size: 0.5rem; }
         }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -137,6 +182,24 @@
     <div class="header">
         <h1>OptiRoute</h1>
         <div class="tagline" data-i18n="tagline">Бесплатная оптимизация маршрутов</div>
+    </div>
+    
+    <!-- ШКАЛА ТОЧНОСТИ MST -->
+    <div class="accuracy-scale">
+        <div class="accuracy-scale-title" data-i18n="scale_title">📊 Что означает точность (MST)?</div>
+        <div class="scale-bars">
+            <div class="scale-low"></div>
+            <div class="scale-mid"></div>
+            <div class="scale-high"></div>
+        </div>
+        <div class="scale-labels">
+            <span class="scale-low-label" data-i18n="scale_low">⚠️ Низкая<br>&lt;60%</span>
+            <span class="scale-mid-label" data-i18n="scale_mid">📌 Средняя<br>60-85%</span>
+            <span class="scale-high-label" data-i18n="scale_high">✅ Высокая<br>85%+</span>
+        </div>
+        <div class="scale-note" data-i18n="scale_note">
+            MST (минимальное остовное дерево) — это математическая нижняя граница. 60-85% — отличный результат для быстрого алгоритма. 85%+ означает, что маршрут почти идеален.
+        </div>
     </div>
     
     <div class="features">
@@ -291,7 +354,13 @@
             faq3_a: "Нажмите на точку в списке или используйте кнопку \"Очистить все\".",
             faq4_q: "▶ Что значит точность?",
             faq4_a: "Точность — это отношение математической нижней границы (MST) к найденному маршруту. 60-85% — отличный результат для быстрого алгоритма. 85%+ означает, что маршрут почти идеален.",
-            footer: "Бесплатный TSP калькулятор"
+            footer: "Бесплатный TSP калькулятор",
+            // Шкала точности
+            scale_title: "📊 Что означает точность (MST)?",
+            scale_low: "⚠️ Низкая<br>&lt;60%",
+            scale_mid: "📌 Средняя<br>60-85%",
+            scale_high: "✅ Высокая<br>85%+",
+            scale_note: "MST (минимальное остовное дерево) — это математическая нижняя граница. 60-85% — отличный результат для быстрого алгоритма. 85%+ означает, что маршрут почти идеален."
         },
         en: {
             tagline: "Free route optimization",
@@ -332,7 +401,13 @@
             faq3_a: "Click on the point in the list or use 'Clear all' button.",
             faq4_q: "▶ What does accuracy mean?",
             faq4_a: "Accuracy is the ratio of the mathematical lower bound (MST) to the found route. 60-85% is excellent for a fast algorithm. 85%+ means the route is nearly perfect.",
-            footer: "Free TSP Calculator"
+            footer: "Free TSP Calculator",
+            // Accuracy scale
+            scale_title: "📊 What does accuracy (MST) mean?",
+            scale_low: "⚠️ Low<br>&lt;60%",
+            scale_mid: "📌 Medium<br>60-85%",
+            scale_high: "✅ High<br>85%+",
+            scale_note: "MST (Minimum Spanning Tree) is the mathematical lower bound. 60-85% is excellent for a fast algorithm. 85%+ means the route is nearly perfect."
         }
     };
     
@@ -349,7 +424,7 @@
                 if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
                     el.placeholder = translations[lang][key];
                 } else {
-                    el.textContent = translations[lang][key];
+                    el.innerHTML = translations[lang][key];
                 }
             }
         });
