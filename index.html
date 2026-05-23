@@ -75,6 +75,43 @@
         .faq-answer.show { display: block; }
         footer { text-align: center; padding: 24px 16px; border-top: 1px solid #2a2f3f; margin-top: 24px; font-size: 0.6rem; color: #5a6380; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #ffaa44; color: #0a0f1e; padding: 8px 18px; border-radius: 40px; font-size: 12px; font-weight: 600; z-index: 2100; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; max-width: 90%; text-align: center; }
+        .tooltip-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #2a2f3f;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 10px;
+            cursor: help;
+            margin-left: 5px;
+            color: #8892b0;
+        }
+        .accuracy-container {
+            position: relative;
+            cursor: help;
+        }
+        .accuracy-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1f2e;
+            border: 1px solid #ffaa44;
+            border-radius: 12px;
+            padding: 10px 14px;
+            width: 220px;
+            font-size: 11px;
+            color: #ccddff;
+            z-index: 100;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .accuracy-container:hover .accuracy-tooltip {
+            display: block;
+        }
         @media (max-width: 550px) {
             .stats-grid { gap: 6px; }
             .stat-card .value { font-size: 0.9rem; }
@@ -83,6 +120,7 @@
             .btn { font-size: 11px; padding: 8px; }
             .container { padding: 0 12px; }
             .lang-btn { padding: 4px 10px; font-size: 10px; }
+            .accuracy-tooltip { width: 180px; font-size: 9px; left: 0; transform: none; }
         }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -103,7 +141,7 @@
     
     <div class="features">
         <div class="feature-card"><div class="feature-icon">🚀</div><div class="feature-title" data-i18n="free">Бесплатно</div></div>
-        <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title" data-i18n="accuracy">Точность до 95%</div></div>
+        <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title" data-i18n="accuracy">Алгоритм TSP</div></div>
         <div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title" data-i18n="address">Поиск по адресу</div></div>
         <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title" data-i18n="instant">Мгновенно</div></div>
     </div>
@@ -119,7 +157,7 @@
         <div class="stats-grid">
             <div class="stat-card"><div class="value" id="totalPoints">0</div><div class="label" data-i18n="points">Точек</div></div>
             <div class="stat-card"><div class="value" id="totalDist">—</div><div class="label" data-i18n="distance">Длина (км)</div></div>
-            <div class="stat-card"><div class="value" id="accuracyVal">—</div><div class="label" data-i18n="acc_label">Качество</div></div>
+            <div class="stat-card accuracy-container"><div class="value" id="accuracyVal">—</div><div class="label" data-i18n="acc_label">Точность <span class="tooltip-icon">ⓘ</span></div><div class="accuracy-tooltip" data-i18n="accuracy_tooltip">Это математическая нижняя граница (MST). 60-85% — отличный результат для быстрого алгоритма. 85%+ — почти идеально!</div></div>
             <div class="stat-card"><div class="value" id="totalTime">—</div><div class="label" data-i18n="time">Время (мс)</div></div>
         </div>
         
@@ -155,7 +193,8 @@
         <div class="modes-title" style="margin-top: 4px;" data-i18n="points_list">📋 Список точек (нажмите ✖ для удаления)</div>
         <div class="points-list" id="pointsList"><div style="color:#5a6380;text-align:center;" data-i18n="no_points">Нет точек. Нажмите на карту</div></div>
         
-        <div class="info-line" style="display: flex; justify-content: flex-end; font-size: 10px; color: #5a6380; margin-top: 8px;">
+        <div class="info-line" style="display: flex; justify-content: space-between; font-size: 10px; color: #5a6380; margin-top: 8px;">
+            <span><span data-i18n="lower_bound">📐 Нижняя граница:</span> <span id="lowerBound">—</span> км</span>
             <span>📈 <span id="status" data-i18n="ready">Готов</span></span>
         </div>
     </div>
@@ -199,7 +238,7 @@
             <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq1_q">▶ Сколько точек можно добавить?</div><div class="faq-answer" data-i18n="faq1_a">До 100 точек. Для максимальной производительности рекомендуется до 50 точек.</div></div>
             <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq2_q">▶ Какой режим оптимизации выбрать?</div><div class="faq-answer" data-i18n="faq2_a">FAST — для быстрых расчётов, Точный — для максимального качества маршрута (рекомендуется для 10+ точек).</div></div>
             <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq3_q">▶ Как удалить точку?</div><div class="faq-answer" data-i18n="faq3_a">Нажмите на точку в списке или используйте кнопку "Очистить все".</div></div>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq4_q">▶ Насколько точные расчёты?</div><div class="faq-answer" data-i18n="faq4_a">Алгоритм находит маршрут, близкий к оптимальному. Качество 85%+ считается отличным результатом!</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq4_q">▶ Что значит точность?</div><div class="faq-answer" data-i18n="faq4_a">Точность — это отношение математической нижней границы (MST) к найденному маршруту. 60-85% — отличный результат для быстрого алгоритма. 85%+ означает, что маршрут почти идеален.</div></div>
         </div>
     </div>
     
@@ -215,9 +254,10 @@
     const translations = {
         ru: {
             tagline: "Бесплатная оптимизация маршрутов",
-            free: "Бесплатно", accuracy: "Точность до 95%", address: "Поиск по адресу", instant: "Мгновенно",
+            free: "Бесплатно", accuracy: "Алгоритм TSP", address: "Поиск по адресу", instant: "Мгновенно",
             select_points: "📌 Выберите точки",
-            points: "Точек", distance: "Длина (км)", acc_label: "Качество", time: "Время (мс)",
+            points: "Точек", distance: "Длина (км)", acc_label: "Точность", time: "Время (мс)",
+            accuracy_tooltip: "Это математическая нижняя граница (MST). 60-85% — отличный результат для быстрого алгоритма. 85%+ — почти идеально!",
             add_address: "🔍 Добавить по адресу",
             address_placeholder: "Москва, Красная площадь",
             distance_mode: "🌍 Режим расстояния",
@@ -227,7 +267,7 @@
             optimize: "🚀 Оптимизировать маршрут", clear: "🗑️ Очистить все",
             points_list: "📋 Список точек (нажмите ✖ для удаления)",
             no_points: "Нет точек. Нажмите на карту",
-            ready: "Готов",
+            lower_bound: "📐 Нижняя граница:", ready: "Готов",
             optimal_route: "📋 Оптимальный маршрут",
             print: "🖨️ Печать", save: "💾 Сохранить (TXT)",
             how_title: "🔧 Как это работает",
@@ -249,15 +289,16 @@
             faq2_a: "FAST — для быстрых расчётов, Точный — для максимального качества маршрута (рекомендуется для 10+ точек).",
             faq3_q: "▶ Как удалить точку?",
             faq3_a: "Нажмите на точку в списке или используйте кнопку \"Очистить все\".",
-            faq4_q: "▶ Насколько точные расчёты?",
-            faq4_a: "Алгоритм находит маршрут, близкий к оптимальному. Качество 85%+ считается отличным результатом!",
+            faq4_q: "▶ Что значит точность?",
+            faq4_a: "Точность — это отношение математической нижней границы (MST) к найденному маршруту. 60-85% — отличный результат для быстрого алгоритма. 85%+ означает, что маршрут почти идеален.",
             footer: "Бесплатный TSP калькулятор"
         },
         en: {
             tagline: "Free route optimization",
-            free: "Free", accuracy: "95% Accuracy", address: "Address Search", instant: "Instant",
+            free: "Free", accuracy: "TSP Algorithm", address: "Address Search", instant: "Instant",
             select_points: "📌 Select points",
-            points: "Points", distance: "Distance (km)", acc_label: "Quality", time: "Time (ms)",
+            points: "Points", distance: "Distance (km)", acc_label: "Accuracy", time: "Time (ms)",
+            accuracy_tooltip: "This is the mathematical lower bound (MST). 60-85% is excellent for a fast algorithm. 85%+ is nearly perfect!",
             add_address: "🔍 Add by address",
             address_placeholder: "Moscow, Red Square",
             distance_mode: "🌍 Distance mode",
@@ -267,7 +308,7 @@
             optimize: "🚀 Optimize route", clear: "🗑️ Clear all",
             points_list: "📋 Points list (click ✖ to delete)",
             no_points: "No points. Click on map",
-            ready: "Ready",
+            lower_bound: "📐 Lower bound:", ready: "Ready",
             optimal_route: "📋 Optimal route",
             print: "🖨️ Print", save: "💾 Save (TXT)",
             how_title: "🔧 How it works",
@@ -289,8 +330,8 @@
             faq2_a: "FAST — for quick calculations, Accurate — for maximum route quality.",
             faq3_q: "▶ How to delete a point?",
             faq3_a: "Click on the point in the list or use 'Clear all' button.",
-            faq4_q: "▶ How accurate are calculations?",
-            faq4_a: "The algorithm finds a route close to optimal. Quality 85%+ is considered excellent!",
+            faq4_q: "▶ What does accuracy mean?",
+            faq4_a: "Accuracy is the ratio of the mathematical lower bound (MST) to the found route. 60-85% is excellent for a fast algorithm. 85%+ means the route is nearly perfect.",
             footer: "Free TSP Calculator"
         }
     };
@@ -350,33 +391,6 @@
             if (this.address) return this.address.substring(0, 70);
             return `${this.lat.toFixed(5)}°, ${this.lng.toFixed(5)}°`;
         }
-    }
-    
-    // Субъективная оценка качества (понятная пользователю)
-    function computeQualityScore(pointsCount, accuracyMode, foundDist) {
-        // Эмпирическая формула: показываем 85-99% в зависимости от сложности
-        let baseQuality;
-        
-        if (pointsCount <= 5) {
-            baseQuality = 98;
-        } else if (pointsCount <= 10) {
-            baseQuality = 96;
-        } else if (pointsCount <= 20) {
-            baseQuality = 93;
-        } else if (pointsCount <= 35) {
-            baseQuality = 90;
-        } else if (pointsCount <= 50) {
-            baseQuality = 87;
-        } else {
-            baseQuality = 85;
-        }
-        
-        // Точный режим даёт +2-3%
-        if (accuracyMode === 'accurate') {
-            baseQuality = Math.min(99, baseQuality + 3);
-        }
-        
-        return Math.min(99, Math.max(85, baseQuality));
     }
     
     function twoOpt(points, routeIndices, distMatrix) {
@@ -490,7 +504,53 @@
         return { route: bestRouteIndices.map(i => points[i]), dist: bestDist };
     }
     
-    // Геокодинг
+    function computeMSTLowerBound(points) {
+        const n = points.length;
+        if (n <= 1) return 0;
+        if (n === 2) return points[0].distTo(points[1]) * 2;
+        
+        const dist = Array(n).fill().map(() => Array(n).fill(0));
+        for (let i = 0; i < n; i++) {
+            for (let j = i+1; j < n; j++) {
+                const d = points[i].distTo(points[j]);
+                dist[i][j] = d;
+                dist[j][i] = d;
+            }
+        }
+        
+        const visited = new Uint8Array(n);
+        const minEdge = Array(n).fill(Infinity);
+        minEdge[0] = 0;
+        let mstWeight = 0;
+        
+        for (let i = 0; i < n; i++) {
+            let u = -1, minVal = Infinity;
+            for (let j = 0; j < n; j++) {
+                if (!visited[j] && minEdge[j] < minVal) {
+                    minVal = minEdge[j];
+                    u = j;
+                }
+            }
+            if (u === -1) break;
+            visited[u] = 1;
+            mstWeight += minVal;
+            for (let v = 0; v < n; v++) {
+                if (!visited[v] && dist[u][v] < minEdge[v]) {
+                    minEdge[v] = dist[u][v];
+                }
+            }
+        }
+        
+        let minEdgeWeight = Infinity;
+        for (let i = 0; i < n; i++) {
+            for (let j = i+1; j < n; j++) {
+                if (dist[i][j] < minEdgeWeight) minEdgeWeight = dist[i][j];
+            }
+        }
+        
+        return mstWeight + (minEdgeWeight === Infinity ? 0 : minEdgeWeight * 0.5);
+    }
+    
     async function geocodeAddress() {
         const address = document.getElementById('addressInput').value.trim();
         if (!address) { showToast('❌ ' + (currentLang === 'ru' ? 'Введите адрес' : 'Enter address')); return; }
@@ -547,6 +607,7 @@
         routeLayer.clearLayers();
         document.getElementById('totalDist').innerHTML = '—';
         document.getElementById('accuracyVal').innerHTML = '—';
+        document.getElementById('lowerBound').innerHTML = '—';
         document.getElementById('routePanel').style.display = 'none';
         updatePointsVisual();
     }
@@ -650,13 +711,13 @@
         const start = performance.now();
         const result = solveTSP(points);
         const end = performance.now();
-        
-        // Субъективная оценка качества (понятная пользователю)
-        const quality = computeQualityScore(points.length, accuracyMode, result.dist);
+        const lowerBound = computeMSTLowerBound(points);
+        const accuracy = Math.min(99.99, (lowerBound / result.dist) * 100);
         
         document.getElementById('totalDist').innerHTML = result.dist.toFixed(2);
+        document.getElementById('lowerBound').innerHTML = lowerBound.toFixed(2);
         document.getElementById('totalTime').innerHTML = (end - start).toFixed(2);
-        document.getElementById('accuracyVal').innerHTML = `${quality}%`;
+        document.getElementById('accuracyVal').innerHTML = `${accuracy.toFixed(2)}%`;
         document.getElementById('status').innerHTML = currentLang === 'ru' ? '✅ Готово' : '✅ Ready';
         
         drawRoute(result.route);
@@ -681,7 +742,8 @@
         });
         
         const totalDist = document.getElementById('totalDist').innerHTML;
-        const quality = document.getElementById('accuracyVal').innerHTML;
+        const accuracy = document.getElementById('accuracyVal').innerHTML;
+        const lowerBound = document.getElementById('lowerBound').innerHTML;
         
         printWindow.document.write(`
             <!DOCTYPE html>
@@ -694,13 +756,16 @@
                     h1 { color: #ff6600; }
                     .total { margin-top: 20px; padding-top: 10px; border-top: 2px solid #ff6600; font-weight: bold; }
                     .date { color: #666; font-size: 12px; margin-bottom: 20px; }
+                    .note { font-size: 11px; color: #666; margin-top: 20px; }
                 </style>
             </head>
             <body>
                 <h1>🗺️ OptiRoute - ${currentLang === 'ru' ? 'Оптимальный маршрут' : 'Optimal route'}</h1>
                 <div class="date">${currentLang === 'ru' ? 'Дата' : 'Date'}: ${new Date().toLocaleString()}</div>
                 <div>${currentLang === 'ru' ? 'Режим расстояния' : 'Distance mode'}: ${distanceMode === 'euclidean' ? (currentLang === 'ru' ? 'Евклидово' : 'Euclidean') : (currentLang === 'ru' ? 'Манхэттенское' : 'Manhattan')}</div>
-                <div>${currentLang === 'ru' ? 'Качество маршрута' : 'Route quality'}: ${quality}</div>
+                <div>${currentLang === 'ru' ? 'Нижняя граница (MST)' : 'Lower bound (MST)'}: ${lowerBound} км</div>
+                <div>${currentLang === 'ru' ? 'Точность маршрута' : 'Route accuracy'}: ${accuracy}</div>
+                <div class="note">${currentLang === 'ru' ? 'ℹ️ Точность 60-85% — отличный результат для быстрого алгоритма. 85%+ — почти идеально.' : 'ℹ️ 60-85% accuracy is excellent for a fast algorithm. 85%+ is nearly perfect.'}</div>
                 <div style="height: 20px;"></div>
                 <pre>${pointsList}</pre>
                 <div class="total">📏 ${currentLang === 'ru' ? 'Общая длина маршрута' : 'Total route length'}: ${totalDist} км</div>
@@ -722,7 +787,9 @@
         content += `OptiRoute - ${currentLang === 'ru' ? 'Оптимальный маршрут' : 'Optimal route'}\n`;
         content += `${currentLang === 'ru' ? 'Дата' : 'Date'}: ${new Date().toLocaleString()}\n`;
         content += `${currentLang === 'ru' ? 'Режим расстояния' : 'Distance mode'}: ${distanceMode === 'euclidean' ? (currentLang === 'ru' ? 'Евклидово' : 'Euclidean') : (currentLang === 'ru' ? 'Манхэттенское' : 'Manhattan')}\n`;
-        content += `${currentLang === 'ru' ? 'Качество маршрута' : 'Route quality'}: ${document.getElementById('accuracyVal').innerHTML}\n`;
+        content += `${currentLang === 'ru' ? 'Нижняя граница (MST)' : 'Lower bound (MST)'}: ${document.getElementById('lowerBound').innerHTML} км\n`;
+        content += `${currentLang === 'ru' ? 'Точность маршрута' : 'Route accuracy'}: ${document.getElementById('accuracyVal').innerHTML}\n`;
+        content += `${currentLang === 'ru' ? 'Примечание' : 'Note'}: ${currentLang === 'ru' ? 'Точность 60-85% — отличный результат для быстрого алгоритма. 85%+ — почти идеально.' : '60-85% accuracy is excellent for a fast algorithm. 85%+ is nearly perfect.'}\n`;
         content += `==================================================\n\n`;
         content += `${currentLang === 'ru' ? 'ПОРЯДОК ОБЪЕЗДА ТОЧЕК' : 'POINTS ORDER'}:\n\n`;
         
@@ -754,6 +821,7 @@
         document.getElementById('totalPoints').innerHTML = '0';
         document.getElementById('totalDist').innerHTML = '—';
         document.getElementById('accuracyVal').innerHTML = '—';
+        document.getElementById('lowerBound').innerHTML = '—';
         document.getElementById('totalTime').innerHTML = '—';
         document.getElementById('status').innerHTML = currentLang === 'ru' ? 'Готов' : 'Ready';
         document.getElementById('routePanel').style.display = 'none';
