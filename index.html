@@ -21,7 +21,20 @@
             overflow-x: hidden;
         }
         
-        /* Language Switcher - адаптивный */
+        /* Убираем белый квадрат при нажатии на маркеры */
+        .point-marker, .point-marker div, .leaflet-marker-icon {
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+        }
+        .leaflet-container {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .leaflet-marker-icon:focus, .leaflet-marker-icon:active {
+            outline: none;
+            box-shadow: none;
+        }
+        
+        /* Language Switcher */
         .lang-switcher {
             position: fixed;
             top: 12px;
@@ -46,6 +59,7 @@
             font-size: 12px;
             transition: 0.2s;
             color: #88aaff;
+            -webkit-tap-highlight-color: transparent;
         }
         .lang-btn.active {
             background: #ffaa44;
@@ -53,7 +67,6 @@
         }
         .lang-btn:active { transform: scale(0.96); }
         
-        /* Header - уменьшенные отступы */
         .header {
             background: linear-gradient(135deg, #0a1220 0%, #0e1a2a 100%);
             padding: 25px 16px;
@@ -63,7 +76,6 @@
         .header h1 { font-size: 1.8rem; color: #ffaa44; margin-bottom: 8px; }
         .header .tagline { font-size: 0.85rem; color: #88aaff; max-width: 700px; margin: 0 auto; }
         
-        /* Features - адаптивная сетка */
         .features {
             display: flex;
             flex-wrap: wrap;
@@ -83,13 +95,13 @@
             min-width: 140px;
             border: 1px solid #ffaa5533;
             transition: transform 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
         .feature-card:active { transform: scale(0.98); }
         .feature-icon { font-size: 1.6rem; margin-bottom: 6px; }
         .feature-title { font-weight: bold; color: #ffaa44; margin-bottom: 5px; font-size: 0.8rem; }
         .feature-desc { font-size: 0.7rem; color: #88aaff; }
         
-        /* Calculator Section */
         .calculator-section {
             padding: 16px;
             position: relative;
@@ -116,7 +128,6 @@
             height: 100%;
         }
         
-        /* Мобильная панель управления - внизу */
         .map-controls {
             position: absolute;
             bottom: 12px;
@@ -134,7 +145,6 @@
             overflow-y: auto;
         }
         
-        /* Для планшетов и десктопов панель справа */
         @media (min-width: 768px) {
             .map-controls {
                 top: 15px;
@@ -176,10 +186,15 @@
             border-radius: 30px;
             font-size: 14px;
             font-family: monospace;
+            -webkit-tap-highlight-color: transparent;
         }
         .address-row button {
             padding: 10px 16px;
             font-size: 16px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .mode-buttons {
@@ -199,6 +214,7 @@
             cursor: pointer;
             font-family: monospace;
             transition: 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
         .mode-btn:active { transform: scale(0.97); }
         .mode-btn.active { background: #ffaa44; color: #0a0f1e; }
@@ -220,6 +236,7 @@
             font-family: monospace;
             font-size: 12px;
             transition: 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: #ffaa44; color: #0a0f1e; }
@@ -241,6 +258,7 @@
             border-bottom: 1px solid #2a3a5a;
             cursor: pointer;
             font-size: 11px;
+            -webkit-tap-highlight-color: transparent;
         }
         .points-list .point-item:active { background: #1a2a3a; }
         .point-num { color: #ffaa44; font-weight: bold; margin-right: 8px; }
@@ -254,7 +272,6 @@
             justify-content: space-between;
         }
         
-        /* Info Section - адаптивная */
         .info-section {
             max-width: 1200px;
             margin: 30px auto;
@@ -291,6 +308,7 @@
             margin-bottom: 5px;
             font-size: 0.8rem;
             padding: 5px 0;
+            -webkit-tap-highlight-color: transparent;
         }
         .faq-answer {
             font-size: 0.7rem;
@@ -329,7 +347,6 @@
             text-align: center;
         }
         
-        /* Адаптация для очень маленьких экранов */
         @media (max-width: 480px) {
             .mode-btn { font-size: 9px; padding: 6px 2px; }
             .btn { padding: 8px; font-size: 11px; }
@@ -340,7 +357,6 @@
             .feature-icon { font-size: 1.3rem; }
         }
         
-        /* Улучшенная прокрутка */
         .map-controls::-webkit-scrollbar {
             width: 4px;
         }
@@ -391,7 +407,7 @@
             
             <div class="address-row">
                 <input type="text" id="addressInput" placeholder="Москва, Красная площадь" data-i18n-placeholder="address_placeholder" enterkeyhint="search">
-                <button id="geocodeBtn" style="background:#2a6a3a; border-radius:30px;">📍</button>
+                <button id="geocodeBtn" style="background:#2a6a3a;">📍</button>
             </div>
             
             <div class="mode-buttons">
@@ -447,9 +463,9 @@
     <div class="info-grid" style="margin-top: 16px;">
         <div class="info-card">
             <h3 data-i18n="faq_title">❓ Частые вопросы</h3>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq1_q">▶ Сколько точек?</div><div class="faq-answer" data-i18n="faq1_a">До 100 точек. Рекомендуется до 50.</div></div>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq2_q">▶ Какой режим выбрать?</div><div class="faq-answer" data-i18n="faq2_a">FAST — быстро, Точный — качественно.</div></div>
-            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq3_q">▶ Как удалить точку?</div><div class="faq-answer" data-i18n="faq3_a">Кликните на точку в списке.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq1_q">▶ Сколько точек?</div><div class="faq-answer" data-i18n="faq1_a">До 100, рекомендуется до 50.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq2_q">▶ Какой режим?</div><div class="faq-answer" data-i18n="faq2_a">FAST — быстро, Точный — качественно.</div></div>
+            <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)" data-i18n="faq3_q">▶ Как удалить?</div><div class="faq-answer" data-i18n="faq3_a">Кликните на точку в списке.</div></div>
         </div>
         <div class="info-card">
             <h3 data-i18n="accuracy_title">📊 О точности</h3>
@@ -459,7 +475,6 @@
         <div class="info-card">
             <h3 data-i18n="contacts_title">📞 Контакты</h3>
             <p data-i18n="contacts_desc">По вопросам сотрудничества:</p>
-            <p>📧 <a href="mailto:optiroute@example.com" style="color:#88aaff;">optiroute@example.com</a></p>
             <p>📱 GitHub: <span style="color:#ffdd99;">@koolkid90</span></p>
             <p style="margin-top: 8px; font-size: 0.6rem;" data-i18n="made_in">Сделано в РФ 🇷🇺</p>
         </div>
@@ -720,7 +735,11 @@
         points.forEach((p, idx) => {
             const popupContent = p.address ? `<b>${idx+1}</b><br>${p.address}` : `<b>${idx+1}</b><br>${p.lat.toFixed(5)}°, ${p.lng.toFixed(5)}°`;
             const marker = L.marker([p.lat, p.lng], {
-                icon: L.divIcon({ html: `<div style="background:#ff6600; color:white; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; border:2px solid white;">${idx+1}</div>`, iconSize: [28, 28] })
+                icon: L.divIcon({ 
+                    html: `<div style="background:#ff6600; color:white; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; border:2px solid white;">${idx+1}</div>`, 
+                    iconSize: [28, 28],
+                    className: 'point-marker'
+                })
             }).addTo(pointLayer);
             marker.bindPopup(popupContent);
         });
